@@ -2,7 +2,6 @@ package modules
 
 import (
 	"errors"
-	"log"
 	"os/exec"
 	"strings"
 )
@@ -67,39 +66,31 @@ func (inf *Interface) TryAction(action string) (string, error) {
 
 	switch action {
 	case "capture":
-	  go inf.captureStart()
-		break
+		go inf.captureStart()
 
 	case "recon":
-    go inf.reconStart()
-		break
+		go inf.reconStart()
 
 	case "stop":
 		inf.stop()
 		return action, nil
 
 	default:
-		err = errors.New("Invalid action")
-	}
-
-	if err != nil {
-		log.Println(err)
+		err = errors.New("invalid action")
 		return "", err
 	}
 
-	return action, nil
+	return action, err
 }
 
 func (i *Interface) stop() {
 	// Go to the fitting cleanup function
 	switch i.State {
 	case "capture":
-    i.captureStop()
-    break
+		i.captureStop()
 
 	case "recon":
 		i.reconStop()
-		break
 
 	default:
 		break

@@ -1,7 +1,6 @@
 package modules
 
 import (
-	"errors"
 	"log"
 	"os"
 	"os/exec"
@@ -10,10 +9,7 @@ import (
 func (i *Interface) reconStart() error {
 	// If the interface is not im monitor mode, try to set it.
 	mon := exec.Command("sudo", "airmon-ng", "start", i.Name)
-	err := mon.Run()
-	if err != nil {
-		err = errors.New("Failed to get interface into Monitor Mode")
-	}
+	_ = mon.Run()
 
 	// Delete previous log file
   i.reconClean()
