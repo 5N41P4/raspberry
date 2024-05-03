@@ -10,7 +10,9 @@ type DiskUsage struct {
 }
 
 type CpuUsage struct {
-	Usage float64 `json:"usage"`
+	AvgLoad1  float64 `json:"load1"`
+	AvgLoad5  float64 `json:"load5"`
+	AvgLoad15 float64 `json:"load15"`
 }
 
 type MemUsage struct {

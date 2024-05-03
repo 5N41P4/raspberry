@@ -52,7 +52,9 @@ func GetCpuUsage() (*data.CpuUsage, error) {
 	}
 
 	return &data.CpuUsage{
-		Usage: cpu.Loadavg1 * 100,
+		AvgLoad1: cpu.Loadavg1,
+		AvgLoad5: cpu.Loadavg5,
+		AvgLoad15: cpu.Loadavg15,
 	}, nil
 }
 
