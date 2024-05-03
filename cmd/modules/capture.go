@@ -39,12 +39,6 @@ func (i *Interface) captureStart() error {
 	return err
 }
 
-func (i *Interface) captureStop() {
-	// Dirty hack to stop the airmon-ng
-	stop := exec.Command("sudo", "killall", "airodump-ng")
-	_ = stop.Run()
-}
-
 func (i *Interface) captureDelete(capName string) {
 	os.Remove("/usr/local/raspberry/captures/" + capName)
 }

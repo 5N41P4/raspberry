@@ -85,17 +85,7 @@ func (inf *Interface) TryAction(action string) (string, error) {
 
 func (i *Interface) stop() {
 	// Go to the fitting cleanup function
-	switch i.State {
-	case "capture":
-		i.captureStop()
-
-	case "recon":
-		i.reconStop()
-
-	default:
-		break
-	}
-
+	i.process.Process.Kill()
 	// Stop the monitor mode
 	mon := exec.Command("sudo", "airmon-ng", "stop", i.Name)
 	_ = mon.Run()

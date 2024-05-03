@@ -36,11 +36,6 @@ func (i *Interface) reconStart() error {
 	return err
 }
 
-func (i *Interface) reconStop() {
-	// Dirty hack to stop the airmon-ng
-	i.process.Process.Kill()
-}
-
 func (i *Interface) reconClean() {
 	os.Remove("/usr/local/raspberry/recon/discovery-01.csv")
 }
