@@ -25,7 +25,7 @@ func (i *Interface) captureStart() error {
 	i.State = "capture"
 
 	// Create a Capture and an ID
-	id := i.Name + time.Now().Format("20060102150405")
+	id := i.Name + "_" + time.Now().Format("01.02.2006_15:04")
 
 	i.process = exec.Command("sudo", "airodump-ng", "-K", "1", "--write", "/usr/local/raspberry/captures/"+id, "--output-format", "cap", "--wps", i.Name)
 	err = i.process.Run()
