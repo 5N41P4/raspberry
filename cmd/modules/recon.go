@@ -38,8 +38,7 @@ func (i *Interface) reconStart() error {
 
 func (i *Interface) reconStop() {
 	// Dirty hack to stop the airmon-ng
-	stop := exec.Command("sudo", "killall", "airodump-ng")
-	_ = stop.Run()
+	i.process.Process.Kill()
 }
 
 func (i *Interface) reconClean() {
