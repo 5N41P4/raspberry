@@ -1,4 +1,4 @@
-module github.com/5N41P4/rpine
+module github.com/5N41P4/raspberry
 
 go 1.22.2
 

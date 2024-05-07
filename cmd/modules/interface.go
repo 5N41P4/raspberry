@@ -4,14 +4,18 @@ import (
 	"errors"
 	"os/exec"
 	"strings"
+
+	"github.com/5N41P4/raspberry/internal/data"
 )
 
 // Interface is a struct that contains the network interface name and the state of the interface
 
 type Interface struct {
-	Name    string `json:"name"`
-	State   string `json:"state"`
-	process *exec.Cmd
+	Name         string `json:"name"`
+	State        string `json:"state"`
+	Deauth       bool   `json:"deauth"`
+	process      *exec.Cmd
+	DeauthActive bool
 }
 
 // GetInterfaces is an initialization function to gat all the availabe network interfaces
@@ -57,14 +61,14 @@ func GetInterface(name string) (Interface, error) {
 }
 
 // StartCapture is a function that starts a capture on the network interface
-func (inf *Interface) TryAction(action string) (string, error) {
+func (inf *Interface) TryAction(action data.ApiAction) (string, error) {
 	if inf.State == "inet" {
 		return "", errors.New("Interface is the internet access")
 	}
 
 	var err error
 
-	switch action {
+	switch action.Action {
 	case "capture":
 		go inf.captureStart()
 
@@ -73,19 +77,26 @@ func (inf *Interface) TryAction(action string) (string, error) {
 
 	case "stop":
 		inf.stop()
-		return action, nil
+		return action.Action, nil
 
 	default:
 		err = errors.New("invalid action")
 		return "", err
 	}
 
-	return action, err
+	if action.Deauth {
+		inf.Deauth = true
+	}
+
+	return action.Action, err
 }
 
 func (i *Interface) stop() {
 	// Go to the fitting cleanup function
 	i.process.Process.Kill()
+
+	i.Deauth = false
+
 	// Stop the monitor mode
 	mon := exec.Command("sudo", "airmon-ng", "stop", i.Name)
 	_ = mon.Run()

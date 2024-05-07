@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/5N41P4/rpine/cmd/modules"
-	"github.com/5N41P4/rpine/internal/data"
+	"github.com/5N41P4/raspberry/cmd/modules"
+	"github.com/5N41P4/raspberry/internal/data"
 )
 
 // Define an application struct to hold the application-wide dependencies for the web application.
@@ -34,6 +34,11 @@ func (app *application) refresh() {
 		select {
 		case <-list.C:
 			go app.refreshLists()
+			for _, inf := range app.interfaces {
+				if inf.Deauth && !inf.DeauthActive {
+					go inf.DeauthAll(&app.access, &app.clients)
+				}
+			}
 
 		case <-app.updater:
 			list.Stop()
@@ -45,7 +50,10 @@ func (app *application) refresh() {
 // Cleanup function for graceful exit and saving of files
 func cleanup(app *application) {
 	for _, iface := range app.interfaces {
-		iface.TryAction("stop")
+		iface.TryAction(data.ApiAction{
+			Identifier: iface.Name,
+			Action:     "stop",
+		})
 	}
 	app.filters.cleanup()
 
@@ -55,15 +63,15 @@ func cleanup(app *application) {
 func main() {
 
 	// Define command-line flags for the HTTP server address.
-  var config bool
+	var config bool
 	flag.BoolVar(&config, "config", false, "Run the configuration program to configure the interfaces, IP and port.")
 	flag.Parse()
 
-  if config {
-    RunConfig()
-  }
+	if config {
+		RunConfig()
+	}
 
-  // Read the config file, if it doesn't exist, go through setup.
+	// Read the config file, if it doesn't exist, go through setup.
 	cfg, err := GetConfig()
 	if err != nil {
 		return
@@ -88,7 +96,7 @@ func main() {
 
 	go func() {
 		// Get the network interfaces
-    app.inet = modules.GetInterfaces(app.config.Inet)
+		app.inet = modules.GetInterfaces(app.config.Inet)
 		app.interfaces = modules.GetInterfaces(app.config.Interfaces)
 		if app.interfaces == nil {
 			errorLog.Fatal("No interfaces found")

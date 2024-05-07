@@ -3,7 +3,7 @@ package modules
 import (
 	"syscall"
 
-	"github.com/5N41P4/rpine/internal/data"
+	"github.com/5N41P4/raspberry/internal/data"
 	"github.com/mackerelio/go-osstat/loadavg"
 	"github.com/mackerelio/go-osstat/memory"
 )

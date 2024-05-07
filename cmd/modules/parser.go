@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/5N41P4/rpine/internal/data"
+	"github.com/5N41P4/raspberry/internal/data"
 )
 
 func ParseCSV(path string) ([]data.AppAP, []data.AppClient, error) {

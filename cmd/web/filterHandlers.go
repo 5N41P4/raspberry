@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/5N41P4/rpine/internal/data"
+	"github.com/5N41P4/raspberry/internal/data"
 	"github.com/julienschmidt/httprouter"
 )
 

@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/5N41P4/rpine/cmd/modules"
+	"github.com/5N41P4/raspberry/cmd/modules"
 )
 
 // Define a writeJSON helper to write a JSON response to the client. This takes

@@ -16,13 +16,15 @@ type ApiClient struct {
 }
 
 type ApiInterface struct {
-	Name  string `json:"name"`
-	State string `json:"mode"`
+	Name   string `json:"name"`
+	State  string `json:"mode"`
+	Deauth bool   `json:"deauth"`
 }
 
 type ApiAction struct {
 	Identifier string `json:"identifier"`
 	Action     string `json:"action"`
+	Deauth     bool   `json:"deauth"`
 }
 
 type ApiSecurity struct {

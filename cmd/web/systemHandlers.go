@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/5N41P4/rpine/cmd/modules"
+	"github.com/5N41P4/raspberry/cmd/modules"
 )
 
 // System Information Handlers

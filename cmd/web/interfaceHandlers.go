@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/5N41P4/rpine/internal/data"
+	"github.com/5N41P4/raspberry/internal/data"
 )
 
 // Interface Handlers
@@ -17,6 +17,7 @@ func (app *application) getInterfaces(w http.ResponseWriter, r *http.Request) {
 		apiiface := data.ApiInterface{
 			Name:  iface.Name,
 			State: iface.State,
+			Deauth: iface.Deauth,
 		}
 		app.infoLog.Println(iface.State)
 		interfaces = append(interfaces, apiiface)
@@ -45,9 +46,7 @@ func (app *application) interfaceAction(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	fmt.Fprintf(w, "%+v\n", input)
-
-	app.infoLog.Printf("%s", input)
+	app.infoLog.Printf("%s", input.Action)
 
 	inf, ok := app.interfaces[input.Identifier]
 
@@ -56,7 +55,7 @@ func (app *application) interfaceAction(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	state, err := inf.TryAction(input.Action)
+	state, err := inf.TryAction(input)
 
 	if err != nil {
 		app.errorLog.Println(err)
@@ -100,7 +99,7 @@ func (app *application) apAction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintf(w, "%+v\n", input)
-	app.infoLog.Printf("%s", input)
+	app.infoLog.Printf("%s", input.Action)
 
 	switch input.Action {
 	case "reset":
@@ -165,7 +164,7 @@ func (app *application) clientAction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintf(w, "%+v\n", input)
-	app.infoLog.Printf("%s", input)
+	app.infoLog.Printf("%s", input.Action)
 
 	switch input.Action {
 	case "reset":
