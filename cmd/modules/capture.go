@@ -26,8 +26,15 @@ func (i *Interface) captureStart() error {
 
 	// Create a Capture and an ID
 	id := i.Name + "_" + time.Now().Format("01.02.2006_15:04")
+	path := "/usr/local/raspberry/captures/" + id + "/" + i.TargetBssid + "_cap"
 
-	i.process = exec.Command("sudo", "airodump-ng", "-K", "1", "--write", "/usr/local/raspberry/captures/"+id, "--output-format", "cap", "--wps", i.Name)
+	if i.TargetBssid == "" {
+		i.process = exec.Command("sudo", "airodump-ng", "-K", "1", "--write", path, "--output-format", "cap,cvs", "--wps", i.Name)
+	}
+	if i.TargetBssid != "" {
+		i.process = exec.Command("sudo", "airodump-ng", "-K", "1", "-c", i.TargetChannel, "-bssid", i.TargetBssid, "--write", path, "--output-format", "cap,csv", "--wps", i.Name)
+	}
+
 	err = i.process.Run()
 
 	if err != nil {
@@ -40,5 +47,5 @@ func (i *Interface) captureStart() error {
 }
 
 func (i *Interface) captureDelete(capName string) {
-	os.Remove("/usr/local/raspberry/captures/" + capName)
+	os.RemoveAll("/usr/local/raspberry/captures/" + capName)
 }

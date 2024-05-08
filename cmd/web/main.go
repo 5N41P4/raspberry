@@ -29,16 +29,11 @@ type application struct {
 
 // Refresh function for organizing lists and parsing files
 func (app *application) refresh() {
-	list := time.NewTicker(30 * time.Second)
+	list := time.NewTicker(5 * time.Second)
 	for {
 		select {
 		case <-list.C:
 			go app.refreshLists()
-			for _, inf := range app.interfaces {
-				if inf.Deauth && !inf.DeauthActive {
-					go inf.DeauthAll(&app.access, &app.clients)
-				}
-			}
 
 		case <-app.updater:
 			list.Stop()
@@ -53,7 +48,7 @@ func cleanup(app *application) {
 		iface.TryAction(data.ApiAction{
 			Identifier: iface.Name,
 			Action:     "stop",
-		})
+		}, &app.access, &app.clients)
 	}
 	app.filters.cleanup()
 

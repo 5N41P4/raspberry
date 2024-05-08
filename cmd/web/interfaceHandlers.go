@@ -15,8 +15,8 @@ func (app *application) getInterfaces(w http.ResponseWriter, r *http.Request) {
 	var interfaces []data.ApiInterface
 	for _, iface := range app.interfaces {
 		apiiface := data.ApiInterface{
-			Name:  iface.Name,
-			State: iface.State,
+			Name:   iface.Name,
+			State:  iface.State,
 			Deauth: iface.Deauth,
 		}
 		app.infoLog.Println(iface.State)
@@ -55,7 +55,7 @@ func (app *application) interfaceAction(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	state, err := inf.TryAction(input)
+	state, err := inf.TryAction(input, &app.access, &app.clients)
 
 	if err != nil {
 		app.errorLog.Println(err)

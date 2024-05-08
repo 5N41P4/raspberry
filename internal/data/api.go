@@ -24,6 +24,7 @@ type ApiInterface struct {
 type ApiAction struct {
 	Identifier string `json:"identifier"`
 	Action     string `json:"action"`
+	Target     string `json:"target"`
 	Deauth     bool   `json:"deauth"`
 }
 
