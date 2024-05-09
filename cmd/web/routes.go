@@ -14,8 +14,8 @@ func (app *application) routes() http.Handler {
 
 	router.Handler(http.MethodGet, "/", http.HandlerFunc(app.home))
 	router.Handler(http.MethodGet, "/recon", http.HandlerFunc(app.home))
-  router.Handler(http.MethodGet, "/filter", http.HandlerFunc(app.home))
-  router.Handler(http.MethodGet, "/capture", http.HandlerFunc(app.home))
+	router.Handler(http.MethodGet, "/filter", http.HandlerFunc(app.home))
+	router.Handler(http.MethodGet, "/capture", http.HandlerFunc(app.home))
 
 	// Ping handler for testing
 	router.Handler(http.MethodGet, "/ping", http.HandlerFunc(app.ping))
@@ -32,35 +32,38 @@ func (app *application) routes() http.Handler {
 	// Memory usage handler
 	router.Handler(http.MethodGet, "/api/mem", http.HandlerFunc(app.memUsage))
 
-  // Security overview handler
-  router.Handler(http.MethodGet, "/api/security", http.HandlerFunc(app.getSec))
+	// Security overview handler
+	router.Handler(http.MethodGet, "/api/security", http.HandlerFunc(app.getSec))
 
-  // Capture file handlers
-  router.Handler(http.MethodGet, "/api/captures", http.HandlerFunc(app.getCaptures))
+	// Capture file handlers
+	router.Handler(http.MethodGet, "/api/captures", http.HandlerFunc(app.getCaptures))
 
 	// Access Point handler for the recon
 	router.Handler(http.MethodGet, "/api/accesspoints", http.HandlerFunc(app.getAP))
-  router.Handler(http.MethodPost, "/api/accesspoints", http.HandlerFunc(app.apAction))
+	router.Handler(http.MethodPost, "/api/accesspoints", http.HandlerFunc(app.apAction))
 
 	// Client Handler for the recon
 	router.Handler(http.MethodGet, "/api/clients", http.HandlerFunc(app.getClients))
-  router.Handler(http.MethodPost, "/api/clients", http.HandlerFunc(app.clientAction))
+	router.Handler(http.MethodPost, "/api/clients", http.HandlerFunc(app.clientAction))
 
 	// Network interfaces handler
 	router.Handler(http.MethodGet, "/api/interfaces", http.HandlerFunc(app.getInterfaces))
-  router.Handler(http.MethodPost, "/api/interfaces", http.HandlerFunc(app.interfaceAction))
+	router.Handler(http.MethodPost, "/api/interfaces", http.HandlerFunc(app.interfaceAction))
 
-  // Filter / White- / Black-list
-  router.Handler(http.MethodGet, "/api/filter/:id", http.HandlerFunc(app.getFilters))
-  router.Handler(http.MethodPost, "/api/filter/:id", http.HandlerFunc(app.filterAction)) 
+	// Filter / White- / Black-list
+	router.Handler(http.MethodGet, "/api/filter/:id", http.HandlerFunc(app.getFilters))
+	router.Handler(http.MethodPost, "/api/filter/:id", http.HandlerFunc(app.filterAction))
+
+	// Handler for deleting the captures
+	router.Handler(http.MethodPost, "/api/captures", http.HandlerFunc(app.captureAction))
 
 	// Use the http.FileServer handler to serve the static files from the ./ui/dist/ directory.
-  fileServer := http.FileServer(http.Dir("/usr/local/raspberry/ui/dist/"))
+	fileServer := http.FileServer(http.Dir("/usr/local/raspberry/ui/dist/"))
 	router.Handler(http.MethodGet, "/assets/*filepath", fileServer)
 
-  // Use the http.FileServer handler to serve the capture files from the /usr/local/raspberry/captures/
-  captureServer := http.FileServer(http.Dir("/usr/local/raspberry/"))
-  router.Handler(http.MethodGet, "/captures/*filepath", captureServer)
+	// Use the http.FileServer handler to serve the capture files from the /usr/local/raspberry/captures/
+	captureServer := http.FileServer(http.Dir("/usr/local/raspberry/"))
+	router.Handler(http.MethodGet, "/captures/*filepath", captureServer)
 
 	// Return the router as the http.Handler
 	return router

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/5N41P4/raspberry/cmd/modules"
 	"github.com/5N41P4/raspberry/internal/data"
 )
 
@@ -163,7 +164,6 @@ func (app *application) clientAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "%+v\n", input)
 	app.infoLog.Printf("%s", input.Action)
 
 	switch input.Action {
@@ -177,6 +177,27 @@ func (app *application) clientAction(w http.ResponseWriter, r *http.Request) {
 
 	case "refresh":
 		app.refreshLists()
+
+	default:
+		app.badRequestResponse(w, errors.New("action not found"))
+	}
+}
+
+func (app *application) captureAction(w http.ResponseWriter, r *http.Request) {
+	var input data.ApiAction
+
+	err := app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, err)
+		return
+	}
+
+	app.infoLog.Printf("%s", input.Action)
+
+	switch input.Action {
+
+	case "delete":
+		modules.CaptureDelete(input.Identifier)
 
 	default:
 		app.badRequestResponse(w, errors.New("action not found"))

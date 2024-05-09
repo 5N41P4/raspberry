@@ -53,6 +53,6 @@ func (i *Interface) captureStart() error {
 	return err
 }
 
-func (i *Interface) captureDelete(capName string) {
+func CaptureDelete(capName string) {
 	os.RemoveAll("/usr/local/raspberry/captures/" + capName)
 }
