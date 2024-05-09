@@ -16,6 +16,8 @@ func (app *application) routes() http.Handler {
 	router.Handler(http.MethodGet, "/recon", http.HandlerFunc(app.home))
 	router.Handler(http.MethodGet, "/filter", http.HandlerFunc(app.home))
 	router.Handler(http.MethodGet, "/capture", http.HandlerFunc(app.home))
+	router.Handler(http.MethodGet, "/maps", http.HandlerFunc(app.home))
+	
 
 	// Ping handler for testing
 	router.Handler(http.MethodGet, "/ping", http.HandlerFunc(app.ping))

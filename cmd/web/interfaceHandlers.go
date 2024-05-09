@@ -70,15 +70,15 @@ func (app *application) interfaceAction(w http.ResponseWriter, r *http.Request) 
 
 // Sends JSON containing all the visible access points in the area
 func (app *application) getAP(w http.ResponseWriter, r *http.Request) {
-	var aps []data.ApiAP
+	var aps []data.AppAP
 
 	for _, ap := range app.access {
-		apiap := data.ApiAP{
-			Essid: ap.Essid,
-			Bssid: ap.Bssid,
-			Priv:  ap.Privacy,
-		}
-		aps = append(aps, apiap)
+		// apiap := data.ApiAP{
+		// 	Essid: ap.Essid,
+		// 	Bssid: ap.Bssid,
+		// 	Priv:  ap.Privacy,
+		// }
+		aps = append(aps, *ap)
 	}
 
 	app.infoLog.Println("[APs]")
@@ -121,29 +121,16 @@ func (app *application) apAction(w http.ResponseWriter, r *http.Request) {
 
 // Sends JSON containing all the visible clients
 func (app *application) getClients(w http.ResponseWriter, r *http.Request) {
-	var apicls []data.ApiClient
+	var apicls []data.AppClient
 
 	for _, cl := range app.clients {
-		var bssid string
-		if cl.Bssid == "(not associated) " {
-			continue
-		}
-
-		// Translate the BSSID from the connected AP's into the more readable ESSID
-		for apBssid, ap := range app.access {
-			if apBssid == cl.Bssid && ap.Essid != "" {
-				bssid = ap.Essid
-				break
-			}
-			bssid = cl.Bssid
-		}
 
 		// Fill the Response with the appropriate strings
-		apicl := data.ApiClient{
-			Bssid:   bssid,
-			Station: cl.Station,
-		}
-		apicls = append(apicls, apicl)
+		// apicl := data.ApiClient{
+		// 	Bssid:   cl.Bssid,
+		// 	Station: cl.Station,
+		// }
+		apicls = append(apicls, *cl)
 	}
 
 	app.infoLog.Println("[Clients]")
