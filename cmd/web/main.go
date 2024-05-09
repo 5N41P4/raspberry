@@ -29,7 +29,7 @@ type application struct {
 
 // Refresh function for organizing lists and parsing files
 func (app *application) refresh() {
-	list := time.NewTicker(5 * time.Second)
+	list := time.NewTicker(10 * time.Second)
 	for {
 		select {
 		case <-list.C:

@@ -110,12 +110,12 @@ func (app *application) refreshLists() {
 
 	// Try to get the testfile for debugging
 	if err != nil {
-		aps, cls, err = modules.ParseCSV(homeDir + "/Source/rpine/testfiles/try-02.csv")
-		app.infoLog.Println("Parsed the Testfile!")
+		aps, cls, err = modules.ParseCSV(homeDir + "/Source/raspberry/testfiles/try-02.csv")
+		app.infoLog.Println("Trying to parse the Testfile!")
 	}
 
 	if err != nil {
-		app.infoLog.Println("Nothing to parse right now")
+		app.infoLog.Printf("Couldn't parse the testfile: %s\n", err)
 		return
 	}
 
