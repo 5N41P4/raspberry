@@ -2,7 +2,7 @@ package modules
 
 import (
 	"encoding/csv"
-	"io"
+	"errors"
 	"os"
 	"strconv"
 	"strings"
@@ -18,40 +18,38 @@ func ParseCSV(path string) ([]data.AppAP, []data.AppClient, error) {
 	}
 	defer file.Close()
 
+	reader := csv.NewReader(file)
+	reader.FieldsPerRecord = -1
+
 	// Read the file content
-	dump, err := io.ReadAll(file)
+	records, err := reader.ReadAll()
 	if err != nil {
 		return []data.AppAP{}, []data.AppClient{}, err
 	}
 
-	dump_str := string(dump)
-	// Replace endline with just an  \n
-	dump_str = strings.Replace(dump_str, ", \r\n", ", \n", -1)
-	dump_str = strings.Replace(dump_str, ",\r\n", ",\n", -1)
-	dump_split := strings.SplitN(dump_str, "\r\n", 4)
+	// Find the row that separates the access points and clients data
+	var separatorIndex int
+	for i, record := range records {
+		if strings.Contains(record[0], "Station MAC") {
+			separatorIndex = i
+			break
+		}
+	}
 
-	// Extract the two parts of the csv
-	dump_aps := dump_split[2]
-	dump_clients := dump_split[3]
-	dump_clients = strings.SplitN(dump_clients, "\r\n", 2)[1]
-
-	// End of dirty hack, fill the structs
-	reader_aps := csv.NewReader(strings.NewReader(dump_aps))
-	reader_aps.Comma = ','
-	reader_aps.TrimLeadingSpace = true
-
-	reader_clients := csv.NewReader(strings.NewReader(dump_clients))
-	reader_clients.Comma = ','
-	reader_clients.TrimLeadingSpace = true
+	// Split the records into two slices
+	if len(records) <= 0 {
+		return []data.AppAP{}, []data.AppClient{}, errors.New("nothing to parse")
+	}
+	apRecords := records[1:separatorIndex]
+	clientRecords := records[separatorIndex+1:]
 
 	// Start with the APs
 	var aps []data.AppAP
-	for {
-		record, err := reader_aps.Read()
-		if err == io.EOF {
-			break
-		}
+	for _, record := range apRecords {
 		// Okay, fill an AP struct then append to the dump
+		for i, str := range record {
+			record[i] = strings.Trim(str, " ")
+		}
 
 		channel, _ := strconv.Atoi(record[3])
 		speed, _ := strconv.Atoi(record[4])
@@ -83,13 +81,12 @@ func ParseCSV(path string) ([]data.AppAP, []data.AppClient, error) {
 
 	// Continue with the clients
 	var cls []data.AppClient
-	for {
-		record, err := reader_clients.Read()
-		if err == io.EOF {
-			break
+	for _, record := range clientRecords {
+		// Okay, fill a Client struct then append to the dump
+		for i, str := range record {
+			record[i] = strings.Trim(str, " ")
 		}
 
-		// Okay, fill a Client struct then append to the dump
 		power, _ := strconv.Atoi(record[3])
 		packets, _ := strconv.Atoi(record[4])
 

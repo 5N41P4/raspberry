@@ -46,7 +46,7 @@ func (app *application) interfaceAction(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	app.infoLog.Printf("%s", input.Action)
+	app.infoLog.Printf("%v", input)
 
 	inf, ok := app.interfaces[input.Identifier]
 

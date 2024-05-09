@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -99,28 +98,13 @@ func (app *application) refreshLists() {
 	// Start time for logging
 	start := time.Now()
 
-	// Get the Home directory of the user for file management
-	homeDir, err := os.UserHomeDir()
-
-	if err != nil {
-		app.errorLog.Fatal("Couldn't get the home directory")
-	}
-
 	aps, cls, err := modules.ParseCSV("/usr/local/raspberry/recon/discovery-01.csv")
 
-	// Try to get the testfile for debugging
 	if err != nil {
-		aps, cls, err = modules.ParseCSV(homeDir + "/Source/raspberry/testfiles/try-02.csv")
-		app.infoLog.Println("Trying to parse the Testfile!")
-	}
-
-	if err != nil {
-		app.infoLog.Printf("Couldn't parse the testfile: %s\n", err)
 		return
 	}
 
 	// Add the access points to the map
-
 	for _, ap := range aps {
 		if app.filters.ApFilter.IsAllowed(ap.Bssid) {
 			app.access[ap.Bssid] = &ap
@@ -128,7 +112,6 @@ func (app *application) refreshLists() {
 	}
 
 	// Add the clients to the map
-
 	for _, cli := range cls {
 		if app.filters.ClFilter.IsAllowed(cli.Station) {
 			app.clients[cli.Station] = &cli

@@ -1,6 +1,7 @@
 package modules
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -14,20 +15,19 @@ func TestParseCSV(t *testing.T) {
 	// Station MAC, First time seen, Last time seen, Power, # packets, BSSID, Probed ESSIDs
 	// DC:A6:32:51:5E:72, 2024-04-11 21:15:18, 2024-04-11 21:17:01, -35,       79, 00:00:00:00:00:00,`
 
-	aps, cls, err := ParseCSV("/home/aurel/Documents/try-02.csv")
-	if err != nil {
-		aps, cls, err = ParseCSV("/users/aurel/Source/rpine/testfiles/try-02.csv")
+	aps, cls, err := ParseCSV("/users/aurel/Source/raspberry/testfiles/try-02.csv")
 
-		if err != nil {
-			t.Fatalf("Expected no error, got %v", err)
-		}
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
 	}
 
 	if len(aps) <= 1 {
+		fmt.Printf("APs: %v\n", aps)
 		t.Fatalf("Expected >= 1 AP, got %d", len(aps))
 	}
 
 	ap := aps[0]
+	fmt.Printf("ap: %v\n", ap)
 	if ap.Bssid != "A4:CE:DA:87:4D:50" {
 		t.Errorf("Expected BSSID to be 'A4:CE:DA:87:4D:50', got '%s'", ap.Bssid)
 	}
@@ -45,6 +45,7 @@ func TestParseCSV(t *testing.T) {
 	}
 
 	cl := cls[0]
+	fmt.Printf("cl: %v\n", cl)
 	if cl.Station != "DC:A6:32:51:5E:72" {
 		t.Errorf("Expected Station to be 'DC:A6:32:51:5E:72', got '%s'", cl.Station)
 	}

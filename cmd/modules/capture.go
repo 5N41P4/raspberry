@@ -25,14 +25,21 @@ func (i *Interface) captureStart() error {
 	i.State = "capture"
 
 	// Create a Capture and an ID
-	id := i.Name + "_" + time.Now().Format("01.02.2006_15:04")
-	path := "/usr/local/raspberry/captures/" + id + "/" + i.TargetBssid + "_cap"
+	id := i.Name + "_" + time.Now().Format("02.01.2006_15:04")
+	path := "/usr/local/raspberry/captures/" + id + "/"
+
+	err = os.MkdirAll(path, 0770)
+	if err != nil {
+		fmt.Println("Couldn't create dir!")
+		return err
+	}
 
 	if i.TargetBssid == "" {
-		i.process = exec.Command("sudo", "airodump-ng", "-K", "1", "--write", path, "--output-format", "cap,cvs", "--wps", i.Name)
+		i.process = exec.Command("sudo", "airodump-ng", "-K", "1", "--write", path, "--output-format", "cap,csv", "--wps", i.Name)
 	}
 	if i.TargetBssid != "" {
-		i.process = exec.Command("sudo", "airodump-ng", "-K", "1", "-c", i.TargetChannel, "-bssid", i.TargetBssid, "--write", path, "--output-format", "cap,csv", "--wps", i.Name)
+		fmt.Println(i.TargetBssid + ", " + i.TargetChannel + ", " + i.TargetStation)
+		i.process = exec.Command("sudo", "airodump-ng", "-K", "1", "-c", i.TargetChannel, "--bssid", i.TargetBssid, "--write", path, "--output-format", "cap,csv", "--wps", i.Name)
 	}
 
 	err = i.process.Run()
