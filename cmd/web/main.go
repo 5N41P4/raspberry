@@ -24,6 +24,7 @@ type application struct {
 	access     map[string]*data.AppAP
 	clients    map[string]*data.AppClient
 	filters    *FilterList
+	scheduler  *data.Scheduler
 	updater    chan struct{}
 }
 
@@ -45,10 +46,7 @@ func (app *application) refresh() {
 // Cleanup function for graceful exit and saving of files
 func cleanup(app *application) {
 	for _, iface := range app.interfaces {
-		iface.TryAction(data.ApiAction{
-			Identifier: iface.Name,
-			Action:     "stop",
-		}, &app.access, &app.clients)
+		iface.Stop()
 	}
 	app.filters.cleanup()
 

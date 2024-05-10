@@ -3,13 +3,13 @@ package main
 import (
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/5N41P4/raspberry/internal/data"
 )
 
 // Basic Server Functions
 
+// home handles the HTTP request for the home page.
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	wd, err := os.Getwd()
 
@@ -21,66 +21,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	app.infoLog.Println(wd)
 
 	http.ServeFile(w, r, "/usr/local/raspberry/ui/dist/index.html")
-}
-
-// Handlers for the security API chart
-
-func (app *application) getSec(w http.ResponseWriter, r *http.Request) {
-	var output data.ApiSecurity
-	var wep, wpa, wpa2, wpa3 int
-
-	for _, ap := range app.access {
-		secTypes := strings.Fields(ap.Privacy)
-		for _, sec := range secTypes {
-			switch sec {
-			case "WEP":
-				wep += 1
-			case "WPA":
-				wpa += 1
-			case "WPA2":
-				wpa2 += 1
-			case "WPA3":
-				wpa3 += 1
-			}
-		}
-	}
-
-	output = data.ApiSecurity{
-		WEP:  wep,
-		WPA:  wpa,
-		WPA2: wpa2,
-		WPA3: wpa3,
-	}
-
-	app.infoLog.Println("[Security]")
-
-	w.Header().Set("Content-Type", "application/json")
-	err := app.writeJSON(w, http.StatusOK, output, nil)
-	if err != nil {
-		app.serverError(w, err)
-	}
-}
-
-func (app *application) getCaptures(w http.ResponseWriter, r *http.Request) {
-	var output data.ApiCaptures
-
-	files, err := os.ReadDir("/usr/local/raspberry/captures")
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	for _, file := range files {
-		output.Files = append(output.Files, file.Name())
-	}
-
-	app.infoLog.Println("[Captures]")
-
-	w.Header().Set("Content-Type", "application/json")
-	err = app.writeJSON(w, http.StatusOK, output, nil)
-	if err != nil {
-		app.serverError(w, err)
-	}
 }
 
 // Test Handlers

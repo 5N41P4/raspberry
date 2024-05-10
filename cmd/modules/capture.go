@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func (i *Interface) captureStart() error {
+func (i *Interface) Capture() error {
 	// If the interface is not im monitor mode, try to set it.
 	mon := exec.Command("sudo", "airmon-ng", "start", i.Name)
 	_ = mon.Run()
@@ -34,12 +34,12 @@ func (i *Interface) captureStart() error {
 		return err
 	}
 
-	if i.TargetBssid == "" {
+	if i.Target.Bssid == "" {
 		i.process = exec.Command("sudo", "airodump-ng", "-K", "1", "--write", path, "--output-format", "cap,csv", "--wps", i.Name)
 	}
-	if i.TargetBssid != "" {
-		fmt.Println(i.TargetBssid + ", " + i.TargetChannel + ", " + i.TargetStation)
-		i.process = exec.Command("sudo", "airodump-ng", "-K", "1", "-c", i.TargetChannel, "--bssid", i.TargetBssid, "--write", path, "--output-format", "cap,csv", "--wps", i.Name)
+	if i.Target.Bssid != "" {
+		fmt.Println(i.Target.Bssid + ", " + i.Target.Channel + ", " + i.Target.Station)
+		i.process = exec.Command("sudo", "airodump-ng", "-K", "1", "-c", i.Target.Channel, "--bssid", i.Target.Bssid, "--write", path, "--output-format", "cap,csv", "--wps", i.Name)
 	}
 
 	err = i.process.Run()
@@ -51,8 +51,4 @@ func (i *Interface) captureStart() error {
 	i.State = "up"
 
 	return err
-}
-
-func CaptureDelete(capName string) {
-	os.RemoveAll("/usr/local/raspberry/captures/" + capName)
 }

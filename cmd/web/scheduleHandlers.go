@@ -1,0 +1,55 @@
+package main
+
+import (
+	// "errors"
+	"net/http"
+
+	"github.com/5N41P4/raspberry/internal/data"
+)
+
+func (app *application) getSchedules(w http.ResponseWriter, r *http.Request) {
+	var jobs []data.Job
+
+	jobs = make([]data.Job, len(app.scheduler.Jobs))
+	for i, job := range app.scheduler.Jobs {
+		jobs[i] = *job
+	}
+
+	app.infoLog.Println(jobs)
+
+	w.Header().Set("Content-Type", "application/json")
+	err := app.writeJSON(w, http.StatusOK, jobs, nil)
+	if err != nil {
+		app.serverError(w, err)
+	}
+}
+
+// func (app *application) scheduleAction(w http.ResponseWriter, r *http.Request) {
+// 	var input data.ApiAction
+
+// 	err := app.readJSON(w, r, &input)
+// 	if err != nil {
+// 		app.badRequestResponse(w, err)
+// 		return
+// 	}
+
+// 	app.infoLog.Printf("%v", input)
+
+// 	inf, ok := app.interfaces[input.Identifier]
+
+// 	if !ok {
+// 		app.errorLog.Println("Interface could not be found")
+// 		app.badRequestResponse(w, errors.New("inteface not found"))
+// 		return
+// 	}
+
+// 	switch input.Action {
+// 	case "add":
+
+// 	case "delete":
+
+// 	default:
+// 		app.errorLog.Println("Invalid action sent to interface")
+// 		app.badRequestResponse(w, errors.New("invalid action"))
+// 	}
+// }

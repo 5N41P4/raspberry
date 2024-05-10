@@ -12,13 +12,13 @@ func (i *Interface) RunDeauth(access *map[string]*data.AppAP, clients *map[strin
 	for {
 		select {
 		case <-refresh.C:
-			if i.TargetBssid == "" {
+			if i.Target.Bssid == "" {
 				i.execDeauthAll(access, clients)
 			} else {
 				go i.execDeauth()
 			}
 
-		case <-i.deauth:
+		case <-i.Deauth.DeauthCan:
 			refresh.Stop()
 			return
 		}
@@ -28,11 +28,11 @@ func (i *Interface) RunDeauth(access *map[string]*data.AppAP, clients *map[strin
 func (i *Interface) execDeauth() {
 	proc := exec.Command("sudo", "aireplay-ng", "-0", "5", "-a")
 
-	proc.Args = append(proc.Args, i.TargetBssid)
+	proc.Args = append(proc.Args, i.Target.Bssid)
 
-	if i.TargetStation != "" {
+	if i.Target.Station != "" {
 		proc.Args = append(proc.Args, "-c")
-		proc.Args = append(proc.Args, i.TargetStation)
+		proc.Args = append(proc.Args, i.Target.Station)
 	}
 	_ = proc.Run()
 }

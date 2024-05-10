@@ -2,23 +2,27 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
+	"strconv"
 
-	"github.com/5N41P4/raspberry/cmd/modules"
 	"github.com/5N41P4/raspberry/internal/data"
 )
 
 // Interface Handlers
 
 // Send the available interfaces as JSON
+// getInterfaces handles the HTTP GET request to retrieve a list of interfaces.
+// It populates the interfaces slice with data from the application's interfaces field,
+// and writes the JSON representation of the interfaces to the response writer.
+// If there are no interfaces available, the function returns early.
+// If there is an error while writing the JSON response, the serverError method is called.
 func (app *application) getInterfaces(w http.ResponseWriter, r *http.Request) {
 	var interfaces []data.ApiInterface
 	for _, iface := range app.interfaces {
 		apiiface := data.ApiInterface{
 			Name:   iface.Name,
 			State:  iface.State,
-			Deauth: iface.Deauth,
+			Deauth: iface.Deauth.Running,
 		}
 		app.infoLog.Println(iface.State)
 		interfaces = append(interfaces, apiiface)
@@ -38,6 +42,11 @@ func (app *application) getInterfaces(w http.ResponseWriter, r *http.Request) {
 }
 
 // Reveive JSON that requests an interface Action and tries to execute it.
+// interfaceAction handles the API action for the interface.
+// It reads the JSON input from the request, retrieves the corresponding interface,
+// and tries to perform the requested action on the interface.
+// If the action is successful, it logs the state of the interface.
+// If there is an error, it logs the error message.
 func (app *application) interfaceAction(w http.ResponseWriter, r *http.Request) {
 	var input data.ApiAction
 
@@ -53,140 +62,66 @@ func (app *application) interfaceAction(w http.ResponseWriter, r *http.Request) 
 
 	if !ok {
 		app.errorLog.Println("Interface could not be found")
+		app.badRequestResponse(w, errors.New("inteface not found"))
 		return
 	}
 
-	state, err := inf.TryAction(input, &app.access, &app.clients)
+	if input.Action == "stop" {
+		inf.Stop()
+		return
+	}
+
+	if inf.State != "up" {
+		app.errorLog.Println("Requested bad interface action")
+		app.badRequestResponse(w, errors.New("bad action requested"))
+		return
+	}
+
+	switch input.Action {
+	case "capture":
+		inf.Target = getTarget(input.Target, &app.access, &app.clients)
+		go inf.Capture()
+
+	case "recon":
+		go inf.Recon()
+
+	default:
+		app.errorLog.Println("Invalid action sent to interface")
+		app.badRequestResponse(w, errors.New("invalid action"))
+	}
+
+	if input.Deauth {
+		inf.Deauth.Running = true
+		inf.Deauth.DeauthCan = make(chan struct{})
+		go inf.RunDeauth(&app.access, &app.clients)
+	}
 
 	if err != nil {
 		app.errorLog.Println(err)
 	}
-
-	app.infoLog.Println(state)
-
 }
 
-// Handlers for interfacing with the Access Points and the Clients
-
-// Sends JSON containing all the visible access points in the area
-func (app *application) getAP(w http.ResponseWriter, r *http.Request) {
-	var aps []data.AppAP
-
-	for _, ap := range app.access {
-		// apiap := data.ApiAP{
-		// 	Essid: ap.Essid,
-		// 	Bssid: ap.Bssid,
-		// 	Priv:  ap.Privacy,
-		// }
-		aps = append(aps, *ap)
-	}
-
-	app.infoLog.Println("[APs]")
-
-	w.Header().Set("Content-Type", "application/json")
-	err := app.writeJSON(w, http.StatusOK, aps, nil)
-	if err != nil {
-		app.serverError(w, err)
-	}
-}
-
-func (app *application) apAction(w http.ResponseWriter, r *http.Request) {
-	var input data.ApiAction
-
-	err := app.readJSON(w, r, &input)
-	if err != nil {
-		app.badRequestResponse(w, err)
-		return
-	}
-
-	fmt.Fprintf(w, "%+v\n", input)
-	app.infoLog.Printf("%s", input.Action)
-
-	switch input.Action {
-	case "reset":
-		for k := range app.access {
-			delete(app.access, k)
+func getTarget(target string, access *map[string]*data.AppAP, clients *map[string]*data.AppClient) *data.Target {
+	// If target is a client station then fill in the target information from the client
+	cl, ok := (*clients)[target]
+	if ok {
+		return &data.Target{
+			Bssid:   cl.Bssid,
+			Station: cl.Station,
+			Channel: strconv.Itoa((*access)[cl.Bssid].Channel),
 		}
-
-	case "delete":
-		delete(app.access, input.Identifier)
-
-	case "refresh":
-		app.refreshLists()
-
-	default:
-		app.badRequestResponse(w, errors.New("action not found"))
-	}
-}
-
-// Sends JSON containing all the visible clients
-func (app *application) getClients(w http.ResponseWriter, r *http.Request) {
-	var apicls []data.AppClient
-
-	for _, cl := range app.clients {
-
-		// Fill the Response with the appropriate strings
-		// apicl := data.ApiClient{
-		// 	Bssid:   cl.Bssid,
-		// 	Station: cl.Station,
-		// }
-		apicls = append(apicls, *cl)
 	}
 
-	app.infoLog.Println("[Clients]")
-
-	w.Header().Set("Content-Type", "application/json")
-	err := app.writeJSON(w, http.StatusOK, apicls, nil)
-	if err != nil {
-		app.serverError(w, err)
-	}
-}
-
-func (app *application) clientAction(w http.ResponseWriter, r *http.Request) {
-	var input data.ApiAction
-
-	err := app.readJSON(w, r, &input)
-	if err != nil {
-		app.badRequestResponse(w, err)
-		return
-	}
-
-	app.infoLog.Printf("%s", input.Action)
-
-	switch input.Action {
-	case "reset":
-		for k := range app.clients {
-			delete(app.clients, k)
+	// If the target is a BSSID then fill in the target with the information from the accesspoint
+	ap, ok := (*access)[target]
+	if ok {
+		return &data.Target{
+			Bssid:   ap.Bssid,
+			Station: "",
+			Channel: strconv.Itoa(ap.Channel),
 		}
-
-	case "delete":
-		delete(app.clients, input.Identifier)
-
-	case "refresh":
-		app.refreshLists()
-
-	default:
-		app.badRequestResponse(w, errors.New("action not found"))
-	}
-}
-
-func (app *application) captureAction(w http.ResponseWriter, r *http.Request) {
-	var input data.ApiAction
-
-	err := app.readJSON(w, r, &input)
-	if err != nil {
-		app.badRequestResponse(w, err)
-		return
 	}
 
-	app.infoLog.Printf("%s", input.Action)
-
-	switch input.Action {
-
-	case "delete":
-		modules.CaptureDelete(input.Identifier)
-
-	default:
-		app.badRequestResponse(w, errors.New("action not found"))
-	}
+	// If the target could not be found then we fill in empty strings as a default
+	return &data.Target{}
 }
