@@ -7,7 +7,7 @@ import (
 	"github.com/5N41P4/raspberry/internal/data"
 )
 
-func (i *Interface) RunDeauth(access *map[string]*data.AppAP, clients *map[string]*data.AppClient) {
+func (i *Interface) RunDeauth(access *map[string]*data.AppAP, clients *map[string]*data.AppClient, t *data.Target) {
 	refresh := time.NewTicker(10 * time.Second)
 	for {
 		select {
@@ -15,7 +15,7 @@ func (i *Interface) RunDeauth(access *map[string]*data.AppAP, clients *map[strin
 			if i.Target.Bssid == "" {
 				i.execDeauthAll(access, clients)
 			} else {
-				go i.execDeauth()
+				go i.execDeauth(t)
 			}
 
 		case <-i.Deauth.DeauthCan:
@@ -25,14 +25,14 @@ func (i *Interface) RunDeauth(access *map[string]*data.AppAP, clients *map[strin
 	}
 }
 
-func (i *Interface) execDeauth() {
+func (i *Interface) execDeauth(t *data.Target) {
 	proc := exec.Command("sudo", "aireplay-ng", "-0", "5", "-a")
 
-	proc.Args = append(proc.Args, i.Target.Bssid)
+	proc.Args = append(proc.Args, t.Bssid)
 
-	if i.Target.Station != "" {
+	if t.Station != "" {
 		proc.Args = append(proc.Args, "-c")
-		proc.Args = append(proc.Args, i.Target.Station)
+		proc.Args = append(proc.Args, t.Station)
 	}
 	_ = proc.Run()
 }

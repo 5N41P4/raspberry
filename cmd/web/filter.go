@@ -8,7 +8,8 @@ import (
 
 type FilterList struct {
 	ApFilter *Filter `json:"ApFilter"`
-	ClFilter *Filter `json:"ClFilter"` }
+	ClFilter *Filter `json:"ClFilter"`
+}
 
 type Filter struct {
 	IsWhitelist bool     `json:"isWhitelist"`
@@ -17,16 +18,16 @@ type Filter struct {
 
 // Create new Filterlists
 func newFilterList() *FilterList {
-  // Check if safed filters are available
-  filter, err := checkStorage()
-  if err == nil {
-    return filter
-  }
+	// Check if safed filters are available
+	filter, err := checkStorage()
+	if err == nil {
+		return filter
+	}
 
-  // If no filters were safed, create new ones
+	// If no filters were safed, create new ones
 	return &FilterList{
 		ApFilter: newFilter(),
-    ClFilter: newFilter(),
+		ClFilter: newFilter(),
 	}
 }
 
@@ -36,7 +37,6 @@ func newFilter() *Filter {
 		Identifier:  make([]string, 0),
 	}
 }
-
 
 // Switch the lists from White to Black lists
 func (fl *Filter) Switch() {
@@ -57,15 +57,15 @@ func (fl *Filter) Delete(id string) {
 	}
 }
 
-func (fl *Filter) Reset(){
-  fl.Identifier = make([]string, 0)
+func (fl *Filter) Reset() {
+	fl.Identifier = make([]string, 0)
 }
 
 // Apply the Filterlists
 func (fl *Filter) IsAllowed(id string) bool {
 	var exists bool
 	for _, filter := range fl.Identifier {
-		if id == filter{
+		if id == filter {
 			exists = true
 			break
 		}
@@ -75,7 +75,7 @@ func (fl *Filter) IsAllowed(id string) bool {
 
 // Cleanup Function for FilterList
 func (fl *FilterList) cleanup() {
-  	// Marshal the struct into a byte slice
+	// Marshal the struct into a byte slice
 	jsonData, err := json.Marshal(fl)
 	if err != nil {
 		fmt.Println("Error marshalling JSON:", err)
@@ -99,24 +99,24 @@ func (fl *FilterList) cleanup() {
 }
 
 func checkStorage() (*FilterList, error) {
-  // Open the file for reading
-  file, err := os.Open("/usr/local/raspberry/FilterList.json")
-  if err != nil {
-    return nil, fmt.Errorf("Error opening file: %w", err)
-  }
-  defer file.Close() // Close the file on exit
+	// Open the file for reading
+	file, err := os.Open("/usr/local/raspberry/FilterList.json")
+	if err != nil {
+		return nil, fmt.Errorf("error opening file: %w", err)
+	}
+	defer file.Close() // Close the file on exit
 
-  // Create a new FilterList object
-  var fl FilterList
+	// Create a new FilterList object
+	var fl FilterList
 
-  // Decode the JSON data from the file
-  decoder := json.NewDecoder(file)
-  err = decoder.Decode(&fl)
-  if err != nil {
-    return nil, fmt.Errorf("Error decoding JSON: %w", err)
-  }
+	// Decode the JSON data from the file
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&fl)
+	if err != nil {
+		return nil, fmt.Errorf("error decoding JSON: %w", err)
+	}
 
-  return &fl, nil
+	return &fl, nil
 }
 
 // Helperfunctions

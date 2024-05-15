@@ -50,6 +50,9 @@ func getInterface(name string) (Interface, error) {
 	inf := Interface{
 		Name:  name,
 		State: "up",
+		Deauth: &data.Deauth{
+			Running: false,
+		},
 	}
 
 	if strings.Contains(string(out), "inet") {
@@ -62,9 +65,13 @@ func getInterface(name string) (Interface, error) {
 
 func (i *Interface) Stop() {
 	// Go to the fitting cleanup function
-	i.process.Process.Kill()
+	if i.process != nil && i.process.Process != nil {
+		i.process.Process.Kill()
+	}
 
-	close(i.Deauth.DeauthCan)
+	if i.Deauth != nil && i.Deauth.DeauthCan != nil {
+		close(i.Deauth.DeauthCan)
+	}
 
 	// Stop the monitor mode
 	mon := exec.Command("sudo", "airmon-ng", "stop", i.Name)

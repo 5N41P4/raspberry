@@ -17,7 +17,7 @@ func (app *application) routes() http.Handler {
 	router.Handler(http.MethodGet, "/filter", http.HandlerFunc(app.home))
 	router.Handler(http.MethodGet, "/capture", http.HandlerFunc(app.home))
 	router.Handler(http.MethodGet, "/maps", http.HandlerFunc(app.home))
-	
+	router.Handler(http.MethodGet, "/scheduler", http.HandlerFunc(app.home))
 
 	// Ping handler for testing
 	router.Handler(http.MethodGet, "/ping", http.HandlerFunc(app.ping))
@@ -58,6 +58,11 @@ func (app *application) routes() http.Handler {
 
 	// Handler for deleting the captures
 	router.Handler(http.MethodPost, "/api/captures", http.HandlerFunc(app.captureAction))
+
+	// Handler for scheduler
+	router.Handler(http.MethodGet, "/api/schedule", http.HandlerFunc(app.getSchedules))
+	router.Handler(http.MethodPut, "/api/schedule", http.HandlerFunc(app.addSchedule))
+	router.Handler(http.MethodDelete, "/api/schedule", http.HandlerFunc(app.deleteSchedule))
 
 	// Use the http.FileServer handler to serve the static files from the ./ui/dist/ directory.
 	fileServer := http.FileServer(http.Dir("/usr/local/raspberry/ui/dist/"))

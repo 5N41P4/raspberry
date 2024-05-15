@@ -5,9 +5,11 @@ import (
 	"os"
 	"os/exec"
 	"time"
+
+	"github.com/5N41P4/raspberry/internal/data"
 )
 
-func (i *Interface) Capture() error {
+func (i *Interface) Capture(t *data.Target) error {
 	// If the interface is not im monitor mode, try to set it.
 	mon := exec.Command("sudo", "airmon-ng", "start", i.Name)
 	_ = mon.Run()
@@ -34,10 +36,10 @@ func (i *Interface) Capture() error {
 		return err
 	}
 
-	if i.Target.Bssid == "" {
+	if t.Bssid == "" {
 		i.process = exec.Command("sudo", "airodump-ng", "-K", "1", "--write", path, "--output-format", "cap,csv", "--wps", i.Name)
 	}
-	if i.Target.Bssid != "" {
+	if t.Bssid != "" {
 		fmt.Println(i.Target.Bssid + ", " + i.Target.Channel + ", " + i.Target.Station)
 		i.process = exec.Command("sudo", "airodump-ng", "-K", "1", "-c", i.Target.Channel, "--bssid", i.Target.Bssid, "--write", path, "--output-format", "cap,csv", "--wps", i.Name)
 	}

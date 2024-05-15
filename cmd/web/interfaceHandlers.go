@@ -18,6 +18,13 @@ import (
 // If there is an error while writing the JSON response, the serverError method is called.
 func (app *application) getInterfaces(w http.ResponseWriter, r *http.Request) {
 	var interfaces []data.ApiInterface
+
+	if app.interfaces == nil {
+		app.writeJSON(w, http.StatusNoContent, nil, nil)
+		app.errorLog.Println("no interfaces with monitoring capabilities given")
+		return
+	}
+
 	for _, iface := range app.interfaces {
 		apiiface := data.ApiInterface{
 			Name:   iface.Name,
@@ -28,7 +35,9 @@ func (app *application) getInterfaces(w http.ResponseWriter, r *http.Request) {
 		interfaces = append(interfaces, apiiface)
 	}
 
-	if len(interfaces) == 0 {
+	if len(interfaces) == 0 || interfaces == nil {
+		app.writeJSON(w, http.StatusNoContent, nil, nil)
+		app.errorLog.Println("no interfaces with monitoring capabilities given")
 		return
 	}
 
@@ -62,7 +71,7 @@ func (app *application) interfaceAction(w http.ResponseWriter, r *http.Request) 
 
 	if !ok {
 		app.errorLog.Println("Interface could not be found")
-		app.badRequestResponse(w, errors.New("inteface not found"))
+		app.badRequestResponse(w, errors.New("interface not found"))
 		return
 	}
 
@@ -77,10 +86,11 @@ func (app *application) interfaceAction(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	inf.Target = getTarget(input.Target, &app.access, &app.clients)
+
 	switch input.Action {
 	case "capture":
-		inf.Target = getTarget(input.Target, &app.access, &app.clients)
-		go inf.Capture()
+		go inf.Capture(inf.Target)
 
 	case "recon":
 		go inf.Recon()
@@ -93,11 +103,7 @@ func (app *application) interfaceAction(w http.ResponseWriter, r *http.Request) 
 	if input.Deauth {
 		inf.Deauth.Running = true
 		inf.Deauth.DeauthCan = make(chan struct{})
-		go inf.RunDeauth(&app.access, &app.clients)
-	}
-
-	if err != nil {
-		app.errorLog.Println(err)
+		go inf.RunDeauth(&app.access, &app.clients, inf.Target)
 	}
 }
 

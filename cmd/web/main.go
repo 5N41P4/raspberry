@@ -47,8 +47,13 @@ func (app *application) refresh() {
 func cleanup(app *application) {
 	for _, iface := range app.interfaces {
 		iface.Stop()
+		app.infoLog.Printf("stopped interface %s\n", iface.Name)
 	}
 	app.filters.cleanup()
+	app.infoLog.Println("cleaned up filters")
+
+	app.stopScheduler()
+	app.infoLog.Println("stopped scheduler")
 
 	fmt.Println("Cleanup completed.")
 }
@@ -76,13 +81,16 @@ func main() {
 
 	// Initialize a new instance of application containing the dependencies.
 	app := &application{
-		config:   cfg,
-		infoLog:  infoLog,
-		errorLog: errorLog,
-		access:   make(map[string]*data.AppAP),
-		clients:  make(map[string]*data.AppClient),
-		filters:  newFilterList(),
+		config:    cfg,
+		infoLog:   infoLog,
+		errorLog:  errorLog,
+		access:    make(map[string]*data.AppAP),
+		clients:   make(map[string]*data.AppClient),
+		scheduler: getScheduler(),
+		filters:   newFilterList(),
 	}
+
+	app.runScheduler()
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)

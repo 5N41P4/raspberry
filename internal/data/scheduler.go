@@ -8,7 +8,7 @@ type Scheduler struct {
 }
 
 type Job struct {
-	ID     string    `json:"id"`
+	ID     int       `json:"id"`
 	Cron   string    `json:"cron"`
 	Action ApiAction `json:"action"`
 }
