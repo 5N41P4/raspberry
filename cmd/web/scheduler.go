@@ -66,11 +66,12 @@ func (app *application) runScheduler() {
 		case "capture":
 			action := job.Action // Assign job.Action to a variable
 			t := getTarget(action.Target, &app.access, &app.clients)
-			fn := func(inf *modules.Interface, t *data.Target) func() {
+			fn := func(inf *modules.Interface, t *data.Target, delay int) func() {
 				return func() {
-					inf.Capture(t)
+					go inf.Capture(t)
+					go inf.StopAfter(delay)
 				}
-			}(inf, t)
+			}(inf, t, job.Action.Time)
 			_, err := app.scheduler.Proc.AddFunc(job.Cron, fn) // Call app.capture() separately
 			if err != nil {
 				app.errorLog.Println(err)

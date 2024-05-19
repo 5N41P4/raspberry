@@ -12,10 +12,10 @@ import (
 // Sends JSON containing all the visible access points in the area
 // getAP handles the HTTP GET request for retrieving access points.
 // It retrieves the access points from the application's access slice,
-// converts them to a slice of data.AppAP, and writes the JSON response
+// converts them to a slice of data.Accesspoint, and writes the JSON response
 // containing the access points to the http.ResponseWriter.
 func (app *application) getAP(w http.ResponseWriter, r *http.Request) {
-	var aps []data.AppAP
+	var aps []data.Accesspoint
 
 	for _, ap := range app.access {
 		aps = append(aps, *ap)

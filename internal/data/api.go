@@ -2,19 +2,6 @@ package data
 
 // Data structs for the API / UI
 
-// Access Point list for the UI
-type ApiAP struct {
-	Essid string `json:"essid"`
-	Bssid string `json:"bssid"`
-	Priv  string `json:"priv"`
-}
-
-// Client list for the UI
-type ApiClient struct {
-	Bssid   string `json:"bssid"`
-	Station string `json:"station"`
-}
-
 type ApiInterface struct {
 	Name   string `json:"name"`
 	State  string `json:"mode"`
@@ -24,6 +11,7 @@ type ApiInterface struct {
 type ApiAction struct {
 	Identifier string `json:"identifier"`
 	Action     string `json:"action"`
+	Time       int    `json:"time"`
 	Target     string `json:"target"`
 	Deauth     bool   `json:"deauth"`
 }

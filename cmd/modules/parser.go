@@ -10,11 +10,11 @@ import (
 	"github.com/5N41P4/raspberry/internal/data"
 )
 
-func ParseCSV(path string) ([]data.AppAP, []data.AppClient, error) {
+func ParseCSV(path string) ([]data.Accesspoint, []data.Client, error) {
 	// Open the file
 	file, err := os.Open(path)
 	if err != nil {
-		return []data.AppAP{}, []data.AppClient{}, err
+		return []data.Accesspoint{}, []data.Client{}, err
 	}
 	defer file.Close()
 
@@ -24,7 +24,7 @@ func ParseCSV(path string) ([]data.AppAP, []data.AppClient, error) {
 	// Read the file content
 	records, err := reader.ReadAll()
 	if err != nil {
-		return []data.AppAP{}, []data.AppClient{}, err
+		return []data.Accesspoint{}, []data.Client{}, err
 	}
 
 	// Find the row that separates the access points and clients data
@@ -38,13 +38,13 @@ func ParseCSV(path string) ([]data.AppAP, []data.AppClient, error) {
 
 	// Split the records into two slices
 	if len(records) <= 0 {
-		return []data.AppAP{}, []data.AppClient{}, errors.New("nothing to parse")
+		return []data.Accesspoint{}, []data.Client{}, errors.New("nothing to parse")
 	}
 	apRecords := records[1:separatorIndex]
 	clientRecords := records[separatorIndex+1:]
 
 	// Start with the APs
-	var aps []data.AppAP
+	var aps []data.Accesspoint
 	for _, record := range apRecords {
 		// Okay, fill an AP struct then append to the dump
 		for i, str := range record {
@@ -58,7 +58,7 @@ func ParseCSV(path string) ([]data.AppAP, []data.AppClient, error) {
 		ivs, _ := strconv.Atoi(record[10])
 		idlen, _ := strconv.Atoi(record[12])
 
-		cur_ap := data.AppAP{
+		cur_ap := data.Accesspoint{
 			Bssid:   record[0],
 			First:   record[1],
 			Last:    record[2],
@@ -80,7 +80,7 @@ func ParseCSV(path string) ([]data.AppAP, []data.AppClient, error) {
 	}
 
 	// Continue with the clients
-	var cls []data.AppClient
+	var cls []data.Client
 	for _, record := range clientRecords {
 		// Okay, fill a Client struct then append to the dump
 		for i, str := range record {
@@ -90,7 +90,7 @@ func ParseCSV(path string) ([]data.AppAP, []data.AppClient, error) {
 		power, _ := strconv.Atoi(record[3])
 		packets, _ := strconv.Atoi(record[4])
 
-		cur_client := data.AppClient{
+		cur_client := data.Client{
 			Station: record[0],
 			First:   record[1],
 			Last:    record[2],

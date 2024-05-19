@@ -3,6 +3,7 @@ package modules
 import (
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/5N41P4/raspberry/internal/data"
 )
@@ -76,4 +77,16 @@ func (i *Interface) Stop() {
 	// Stop the monitor mode
 	mon := exec.Command("sudo", "airmon-ng", "stop", i.Name)
 	_ = mon.Run()
+}
+
+func (i *Interface) StopAfter(delay int) {
+	if delay == 0 {
+		return
+	}
+	alarm := time.NewTicker(time.Duration(delay) * time.Minute)
+
+	<-alarm.C
+	i.Stop()
+	alarm.Stop()
+
 }

@@ -1,6 +1,8 @@
 package data
 
-import "github.com/robfig/cron/v3"
+import (
+	"github.com/robfig/cron/v3"
+)
 
 type Scheduler struct {
 	Jobs []*Job `json:"jobs"`

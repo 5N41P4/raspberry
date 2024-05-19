@@ -1,6 +1,6 @@
 package data
 
-type AppAP struct {
+type Accesspoint struct {
 	Bssid   string `json:"bssid"`
 	First   string `json:"first seen at"`
 	Last    string `json:"last seen at"`
@@ -18,7 +18,7 @@ type AppAP struct {
 	Key     string `json:"key"`
 }
 
-type AppClient struct {
+type Client struct {
 	// MAC address
 	Station string `json:"station"`
 	First   string `json:"first seen at"`

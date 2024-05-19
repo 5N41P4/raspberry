@@ -7,7 +7,7 @@ import (
 	"github.com/5N41P4/raspberry/internal/data"
 )
 
-func (i *Interface) RunDeauth(access *map[string]*data.AppAP, clients *map[string]*data.AppClient, t *data.Target) {
+func (i *Interface) RunDeauth(access *map[string]*data.Accesspoint, clients *map[string]*data.Client, t *data.Target) {
 	refresh := time.NewTicker(10 * time.Second)
 	for {
 		select {
@@ -37,7 +37,7 @@ func (i *Interface) execDeauth(t *data.Target) {
 	_ = proc.Run()
 }
 
-func (i *Interface) execDeauthAll(access *map[string]*data.AppAP, clients *map[string]*data.AppClient) {
+func (i *Interface) execDeauthAll(access *map[string]*data.Accesspoint, clients *map[string]*data.Client) {
 	for _, ap := range *access {
 		proc := exec.Command("sudo", "aireplay-ng", "-0", "5", "-a")
 		// Run the Deauth attack for all AP's that don't show an ESSID

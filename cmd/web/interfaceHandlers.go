@@ -105,9 +105,11 @@ func (app *application) interfaceAction(w http.ResponseWriter, r *http.Request) 
 		inf.Deauth.DeauthCan = make(chan struct{})
 		go inf.RunDeauth(&app.access, &app.clients, inf.Target)
 	}
+
+	go inf.StopAfter(input.Time)
 }
 
-func getTarget(target string, access *map[string]*data.AppAP, clients *map[string]*data.AppClient) *data.Target {
+func getTarget(target string, access *map[string]*data.Accesspoint, clients *map[string]*data.Client) *data.Target {
 	// If target is a client station then fill in the target information from the client
 	cl, ok := (*clients)[target]
 	if ok {

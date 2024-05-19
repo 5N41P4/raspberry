@@ -23,6 +23,7 @@ func TestRunScheduler(t *testing.T) {
 		Action: data.ApiAction{
 			Identifier: "wlan1",
 			Action:     "capture",
+			Time:       5,
 			Target:     "1C:91:80:D1:D8:BE",
 			Deauth:     false,
 		},
@@ -33,6 +34,7 @@ func TestRunScheduler(t *testing.T) {
 		Action: data.ApiAction{
 			Identifier: "wlan1",
 			Action:     "capture",
+			Time:       10,
 			Target:     "6C:FF:CE:EC:15:94",
 			Deauth:     false,
 		},
@@ -44,8 +46,8 @@ func TestRunScheduler(t *testing.T) {
 			"wlan0": &wlan0,
 			"wlan1": &wlan1,
 		},
-		access:    make(map[string]*data.AppAP),
-		clients:   make(map[string]*data.AppClient),
+		access:    make(map[string]*data.Accesspoint),
+		clients:   make(map[string]*data.Client),
 		filters:   newFilterList(),
 		scheduler: getScheduler(),
 	}

@@ -9,7 +9,7 @@ import (
 
 // Sends JSON containing all the visible clients
 func (app *application) getClients(w http.ResponseWriter, r *http.Request) {
-	var apicls []data.AppClient
+	var apicls []data.Client
 
 	for _, cl := range app.clients {
 		apicls = append(apicls, *cl)

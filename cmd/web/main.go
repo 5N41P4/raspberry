@@ -21,8 +21,8 @@ type application struct {
 	infoLog    *log.Logger
 	inet       map[string]*modules.Interface
 	interfaces map[string]*modules.Interface
-	access     map[string]*data.AppAP
-	clients    map[string]*data.AppClient
+	access     map[string]*data.Accesspoint
+	clients    map[string]*data.Client
 	filters    *FilterList
 	scheduler  *data.Scheduler
 	updater    chan struct{}
@@ -30,7 +30,7 @@ type application struct {
 
 // Refresh function for organizing lists and parsing files
 func (app *application) refresh() {
-	list := time.NewTicker(2 * time.Second)
+	list := time.NewTicker(5 * time.Second)
 	for {
 		select {
 		case <-list.C:
@@ -84,13 +84,11 @@ func main() {
 		config:    cfg,
 		infoLog:   infoLog,
 		errorLog:  errorLog,
-		access:    make(map[string]*data.AppAP),
-		clients:   make(map[string]*data.AppClient),
+		access:    make(map[string]*data.Accesspoint),
+		clients:   make(map[string]*data.Client),
 		scheduler: getScheduler(),
 		filters:   newFilterList(),
 	}
-
-	app.runScheduler()
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
@@ -102,6 +100,8 @@ func main() {
 		if app.interfaces == nil {
 			errorLog.Fatal("No interfaces found")
 		}
+
+		app.runScheduler()
 
 		// Initualize the updater in a go routine for all recurring tasks
 		app.updater = make(chan struct{})
@@ -120,10 +120,8 @@ func main() {
 	}()
 
 	// Wait for the main program or interrupt signal
-	select {
-	case <-interrupt:
-		fmt.Println("Received interrupt signal. Shutting down...")
-		close(app.updater)
-		cleanup(app)
-	}
+	<-interrupt
+	fmt.Println("Received interrupt signal. Shutting down...")
+	close(app.updater)
+	cleanup(app)
 }
