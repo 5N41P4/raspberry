@@ -72,6 +72,8 @@ func (app *application) getCaptureWithId(w http.ResponseWriter, r *http.Request)
 		Clients:      cls,
 	}
 
+	app.infoLog.Printf("[CAPTURE] %s\n", id)
+
 	w.Header().Set("Content-Type", "application/json")
 	err = app.writeJSON(w, http.StatusOK, capture, nil)
 	if err != nil {
