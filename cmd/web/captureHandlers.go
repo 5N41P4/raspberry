@@ -5,14 +5,16 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/5N41P4/raspberry/cmd/modules"
 	"github.com/5N41P4/raspberry/internal/data"
+	"github.com/julienschmidt/httprouter"
 )
 
 // getCaptures handles the HTTP GET request to retrieve the list of capture files.
 func (app *application) getCaptures(w http.ResponseWriter, r *http.Request) {
 	var output data.ApiCaptures
 
-	files, err := os.ReadDir("/usr/local/raspberry/captures")
+	files, err := os.ReadDir(modules.CaptureBasePath)
 	if err != nil {
 		app.serverError(w, err)
 		return
@@ -53,6 +55,27 @@ func (app *application) captureAction(w http.ResponseWriter, r *http.Request) {
 
 	default:
 		app.badRequestResponse(w, errors.New("action not found"))
+	}
+}
+
+func (app *application) getCaptureWithId(w http.ResponseWriter, r *http.Request) {
+	var id = httprouter.ParamsFromContext(r.Context()).ByName("id")
+	path := modules.CaptureBasePath + "/" + id + "/-01.csv"
+
+	aps, cls, err := modules.ParseCSV(path)
+	if err != nil {
+		app.badRequestResponse(w, err)
+	}
+
+	capture := data.ApiCapture{
+		Accesspoints: aps,
+		Clients:      cls,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	err = app.writeJSON(w, http.StatusOK, capture, nil)
+	if err != nil {
+		app.serverError(w, err)
 	}
 }
 

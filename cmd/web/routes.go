@@ -58,6 +58,7 @@ func (app *application) routes() http.Handler {
 
 	// Handler for deleting the captures
 	router.Handler(http.MethodPost, "/api/captures", http.HandlerFunc(app.captureAction))
+	router.Handler(http.MethodGet, "/api/capture/:id", http.HandlerFunc(app.getCaptureWithId))
 
 	// Handler for scheduler
 	router.Handler(http.MethodGet, "/api/schedule", http.HandlerFunc(app.getSchedules))

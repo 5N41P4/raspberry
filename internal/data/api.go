@@ -26,3 +26,8 @@ type ApiSecurity struct {
 type ApiCaptures struct {
 	Files []string `json:"files"`
 }
+
+type ApiCapture struct {
+	Accesspoints []Accesspoint `json:"accesspoints"`
+	Clients      []Client      `json:"clients"`
+}

@@ -9,15 +9,17 @@ import (
 	"github.com/5N41P4/raspberry/internal/data"
 )
 
+var CaptureBasePath = "/usr/local/raspberry/captures"
+
 func (i *Interface) Capture(t *data.Target) error {
 	// If the interface is not im monitor mode, try to set it.
 	mon := exec.Command("sudo", "airmon-ng", "start", i.Name)
 	_ = mon.Run()
 
-	fileInfo, err := os.Stat("/usr/local/raspberry/captures")
+	fileInfo, err := os.Stat(CaptureBasePath)
 
 	if os.IsNotExist(err) || !fileInfo.IsDir() {
-		err = os.MkdirAll("/usr/local/raspberry/captures", 0770)
+		err = os.MkdirAll(CaptureBasePath, 0770)
 	}
 
 	if err != nil {
@@ -28,7 +30,7 @@ func (i *Interface) Capture(t *data.Target) error {
 
 	// Create a Capture and an ID
 	id := i.Name + "_" + time.Now().Format("02.01.2006_15:04")
-	path := "/usr/local/raspberry/captures/" + id + "/"
+	path := CaptureBasePath + "/" + id + "/"
 
 	err = os.MkdirAll(path, 0770)
 	if err != nil {
