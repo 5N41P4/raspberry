@@ -4,8 +4,10 @@ import (
 	// "errors"
 
 	"net/http"
+	"strconv"
 
 	"github.com/5N41P4/raspberry/internal/data"
+	"github.com/julienschmidt/httprouter"
 )
 
 func (app *application) getSchedules(w http.ResponseWriter, r *http.Request) {
@@ -14,7 +16,7 @@ func (app *application) getSchedules(w http.ResponseWriter, r *http.Request) {
 		jobs[i] = *job
 	}
 
-	app.infoLog.Println(jobs)
+	app.infoLog.Println("[SCHED]: GET Jobs")
 
 	w.Header().Set("Content-Type", "application/json")
 	err := app.writeJSON(w, http.StatusOK, jobs, nil)
@@ -32,22 +34,20 @@ func (app *application) addSchedule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.infoLog.Printf("%v", input)
+	app.infoLog.Printf("[SCHED]: Jobs\n")
 
 	app.addJob(input)
 }
 
 func (app *application) deleteSchedule(w http.ResponseWriter, r *http.Request) {
-	var input data.Job
+	var cntx = httprouter.ParamsFromContext(r.Context()).ByName("id")
 
-	err := app.readJSON(w, r, &input)
+	id, err := strconv.Atoi(cntx)
 	if err != nil {
 		app.badRequestResponse(w, err)
-		return
 	}
 
-	app.infoLog.Printf("%v", input)
+	app.infoLog.Printf("[SCHED]: Delete ID = %d", id)
 
-	app.deleteJob(input.ID)
-
+	app.deleteJob(id)
 }

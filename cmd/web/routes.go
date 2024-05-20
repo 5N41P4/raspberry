@@ -63,7 +63,7 @@ func (app *application) routes() http.Handler {
 	// Handler for scheduler
 	router.Handler(http.MethodGet, "/api/schedule", http.HandlerFunc(app.getSchedules))
 	router.Handler(http.MethodPut, "/api/schedule", http.HandlerFunc(app.addSchedule))
-	router.Handler(http.MethodDelete, "/api/schedule", http.HandlerFunc(app.deleteSchedule))
+	router.Handler(http.MethodDelete, "/api/schedule/:id", http.HandlerFunc(app.deleteSchedule))
 
 	// Use the http.FileServer handler to serve the static files from the ./ui/dist/ directory.
 	fileServer := http.FileServer(http.Dir("/usr/local/raspberry/ui/dist/"))

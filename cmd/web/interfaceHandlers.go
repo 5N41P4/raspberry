@@ -41,7 +41,7 @@ func (app *application) getInterfaces(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.infoLog.Println(interfaces)
+	app.infoLog.Println("[INF] GET Interfaces")
 
 	w.Header().Set("Content-Type", "application/json")
 	err := app.writeJSON(w, http.StatusOK, interfaces, nil)
@@ -70,7 +70,7 @@ func (app *application) interfaceAction(w http.ResponseWriter, r *http.Request) 
 	inf, ok := app.interfaces[input.Identifier]
 
 	if !ok {
-		app.errorLog.Println("Interface could not be found")
+		app.errorLog.Println("[INF] Interface could not be found")
 		app.badRequestResponse(w, errors.New("interface not found"))
 		return
 	}
@@ -81,7 +81,7 @@ func (app *application) interfaceAction(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if inf.State != "up" {
-		app.errorLog.Println("Requested bad interface action")
+		app.errorLog.Println("[INF] Requested bad interface action")
 		app.badRequestResponse(w, errors.New("bad action requested"))
 		return
 	}
@@ -96,7 +96,7 @@ func (app *application) interfaceAction(w http.ResponseWriter, r *http.Request) 
 		go inf.Recon()
 
 	default:
-		app.errorLog.Println("Invalid action sent to interface")
+		app.errorLog.Println("[INF] Invalid action sent to interface")
 		app.badRequestResponse(w, errors.New("invalid action"))
 	}
 
