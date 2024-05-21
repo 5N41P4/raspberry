@@ -10,7 +10,15 @@ type Scheduler struct {
 }
 
 type Job struct {
-	ID     int       `json:"id"`
-	Cron   string    `json:"cron"`
-	Action ApiAction `json:"action"`
+	ID   int    `json:"id"`
+	Cron string `json:"cron"`
+	Cmd  Cmd    `json:"cmd"`
+}
+
+type Cmd struct {
+	Interface string  `json:"interface"`
+	Time      int     `json:"time"`
+	Action    string  `json:"action"`
+	Target    *Target `json:"target"`
+	Deauth    bool    `json:"deauth"`
 }

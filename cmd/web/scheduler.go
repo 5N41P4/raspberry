@@ -56,22 +56,21 @@ func (app *application) runScheduler() {
 	}
 
 	for _, job := range app.scheduler.Jobs {
-		inf, ok := app.interfaces[job.Action.Identifier]
+		inf, ok := app.interfaces[job.Cmd.Interface]
 		if !ok {
 			app.errorLog.Println("error: interface from job not found")
 			continue
 		}
 
-		switch job.Action.Action {
+		switch job.Cmd.Action {
 		case "capture":
-			action := job.Action // Assign job.Action to a variable
-			t := getTarget(action.Target, &app.access, &app.clients)
 			fn := func(inf *modules.Interface, t *data.Target, delay int) func() {
 				return func() {
 					go inf.Capture(t)
+					go inf.RunDeauth(&app.access, &app.clients, t)
 					go inf.StopAfter(delay)
 				}
-			}(inf, t, job.Action.Time)
+			}(inf, job.Cmd.Target, job.Cmd.Time)
 			_, err := app.scheduler.Proc.AddFunc(job.Cron, fn) // Call app.capture() separately
 			if err != nil {
 				app.errorLog.Println(err)

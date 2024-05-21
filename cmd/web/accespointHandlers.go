@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -40,15 +39,8 @@ func (app *application) getAP(w http.ResponseWriter, r *http.Request) {
 // If the action is not found or there is an error reading the JSON input,
 // it returns a bad request response.
 func (app *application) apAction(w http.ResponseWriter, r *http.Request) {
-	var input data.ApiAction
+	input := r.Context().Value("input").(*data.ApiAction)
 
-	err := app.readJSON(w, r, &input)
-	if err != nil {
-		app.badRequestResponse(w, err)
-		return
-	}
-
-	fmt.Fprintf(w, "%+v\n", input)
 	app.infoLog.Printf("%s", input.Action)
 
 	switch input.Action {
@@ -58,7 +50,7 @@ func (app *application) apAction(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "delete":
-		delete(app.access, input.Identifier)
+		delete(app.access, input.Target)
 
 	case "refresh":
 		app.refreshLists()

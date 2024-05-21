@@ -24,14 +24,14 @@ func (i *Interface) Recon() error {
 		log.Println(err)
 		return err
 	}
-	i.State = "recon"
+	i.State = InterfaceStates[Recon]
 
 	i.process = exec.Command("sudo", "airodump-ng", "-K", "1", "--write", "/usr/local/raspberry/recon/discovery", "--output-format", "csv", "--wps", i.Name)
 	err = i.process.Run()
 
 	i.reconClean()
 
-	i.State = "up"
+	i.State = InterfaceStates[Up]
 
 	return err
 }

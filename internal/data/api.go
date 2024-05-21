@@ -9,11 +9,10 @@ type ApiInterface struct {
 }
 
 type ApiAction struct {
-	Identifier string `json:"identifier"`
-	Action     string `json:"action"`
-	Time       int    `json:"time"`
-	Target     string `json:"target"`
-	Deauth     bool   `json:"deauth"`
+	Action string `json:"action"`
+	Time   int    `json:"time"`
+	Target string `json:"target"`
+	Deauth bool   `json:"deauth"`
 }
 
 type ApiSecurity struct {
@@ -30,4 +29,18 @@ type ApiCaptures struct {
 type ApiCapture struct {
 	Accesspoints []Accesspoint `json:"accesspoints"`
 	Clients      []Client      `json:"clients"`
+}
+
+type ApiFakeAPStats struct {
+	Name      string `json:"name"`
+	Running   bool   `json:"running"`
+	Handshake bool   `json:"handshake"`
+	Key       bool   `json:"key"`
+}
+
+type ApiFakeAPAction struct {
+	Bssid   string `json:"bssid"`
+	Channel int    `json:"channel"`
+	Essid   string `json:"essid"`
+	Cipher  string `json:"cipher"`
 }

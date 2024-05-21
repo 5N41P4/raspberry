@@ -26,7 +26,7 @@ func (i *Interface) Capture(t *data.Target) error {
 		return err
 	}
 
-	i.State = "capture"
+	i.State = InterfaceStates[Capture]
 
 	// Create a Capture and an ID
 	id := i.Name + "_" + time.Now().Format("02.01.2006_15:04")
@@ -52,7 +52,7 @@ func (i *Interface) Capture(t *data.Target) error {
 		fmt.Println(err)
 	}
 
-	i.State = "up"
+	i.State = InterfaceStates[Up]
 
 	return err
 }

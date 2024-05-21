@@ -34,7 +34,7 @@ func (app *application) addSchedule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.infoLog.Printf("[SCHED]: Jobs\n")
+	app.infoLog.Printf("[SCHED]: Add Jobs\n")
 
 	app.addJob(input)
 }

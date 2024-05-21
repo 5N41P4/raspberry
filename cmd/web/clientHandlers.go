@@ -25,13 +25,7 @@ func (app *application) getClients(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) clientAction(w http.ResponseWriter, r *http.Request) {
-	var input data.ApiAction
-
-	err := app.readJSON(w, r, &input)
-	if err != nil {
-		app.badRequestResponse(w, err)
-		return
-	}
+	input := r.Context().Value("input").(*data.ApiAction)
 
 	app.infoLog.Printf("%s", input.Action)
 
@@ -42,7 +36,7 @@ func (app *application) clientAction(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "delete":
-		delete(app.clients, input.Identifier)
+		delete(app.clients, input.Target)
 
 	case "refresh":
 		app.refreshLists()

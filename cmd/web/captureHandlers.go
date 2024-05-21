@@ -38,20 +38,14 @@ func (app *application) getCaptures(w http.ResponseWriter, r *http.Request) {
 // If the action is "delete", it calls the captureDelete function with the provided identifier.
 // Otherwise, it returns a bad request response with an error message.
 func (app *application) captureAction(w http.ResponseWriter, r *http.Request) {
-	var input data.ApiAction
-
-	err := app.readJSON(w, r, &input)
-	if err != nil {
-		app.badRequestResponse(w, err)
-		return
-	}
+	input := r.Context().Value("input").(*data.ApiAction)
 
 	app.infoLog.Printf("%s", input.Action)
 
 	switch input.Action {
 
 	case "delete":
-		captureDelete(input.Identifier)
+		captureDelete(input.Target)
 
 	default:
 		app.badRequestResponse(w, errors.New("action not found"))

@@ -7,6 +7,8 @@ import (
 	"github.com/5N41P4/raspberry/internal/data"
 )
 
+
+
 func (i *Interface) RunDeauth(access *map[string]*data.Accesspoint, clients *map[string]*data.Client, t *data.Target) {
 	refresh := time.NewTicker(10 * time.Second)
 	for {

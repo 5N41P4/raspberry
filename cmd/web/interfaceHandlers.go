@@ -5,7 +5,16 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/5N41P4/raspberry/cmd/modules"
 	"github.com/5N41P4/raspberry/internal/data"
+)
+
+const (
+	Up modules.InterfaceState = iota
+	Inet
+	Recon
+	Capture
+	AccessPoint
 )
 
 // Interface Handlers
@@ -50,37 +59,16 @@ func (app *application) getInterfaces(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Reveive JSON that requests an interface Action and tries to execute it.
-// interfaceAction handles the API action for the interface.
-// It reads the JSON input from the request, retrieves the corresponding interface,
-// and tries to perform the requested action on the interface.
-// If the action is successful, it logs the state of the interface.
-// If there is an error, it logs the error message.
 func (app *application) interfaceAction(w http.ResponseWriter, r *http.Request) {
-	var input data.ApiAction
-
-	err := app.readJSON(w, r, &input)
-	if err != nil {
-		app.badRequestResponse(w, err)
-		return
-	}
-
-	app.infoLog.Printf("%v", input)
-
-	inf, ok := app.interfaces[input.Identifier]
-
-	if !ok {
-		app.errorLog.Println("[INF] Interface could not be found")
-		app.badRequestResponse(w, errors.New("interface not found"))
-		return
-	}
+	input := r.Context().Value("input").(*data.ApiAction)
+	inf := r.Context().Value("inf").(*modules.Interface)
 
 	if input.Action == "stop" {
 		inf.Stop()
 		return
 	}
 
-	if inf.State != "up" {
+	if inf.State != modules.InterfaceStates[Up] {
 		app.errorLog.Println("[INF] Requested bad interface action")
 		app.badRequestResponse(w, errors.New("bad action requested"))
 		return
@@ -89,10 +77,20 @@ func (app *application) interfaceAction(w http.ResponseWriter, r *http.Request) 
 	inf.Target = getTarget(input.Target, &app.access, &app.clients)
 
 	switch input.Action {
-	case "capture":
+	case modules.InterfaceStates[AccessPoint]:
+		ap, err := modules.NewFakeAP(inf.Name, inf.Target)
+		if err != nil {
+			app.errorLog.Println("[INF] Could not create fake AP")
+			app.serverError(w, err)
+			return
+		}
+		inf.FakeAP = ap
+		go inf.FakeAP.Start()
+
+	case modules.InterfaceStates[Capture]:
 		go inf.Capture(inf.Target)
 
-	case "recon":
+	case modules.InterfaceStates[Recon]:
 		go inf.Recon()
 
 	default:

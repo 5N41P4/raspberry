@@ -39,31 +39,39 @@ func (app *application) routes() http.Handler {
 
 	// Capture file handlers
 	router.Handler(http.MethodGet, "/api/captures", http.HandlerFunc(app.getCaptures))
+	router.Handler(http.MethodGet, "/api/capture/:id", http.HandlerFunc(app.getCaptureWithId))
+	router.Handler(http.MethodPost, "/api/captures", app.readJSONMiddleware(http.HandlerFunc(app.captureAction)))
 
 	// Access Point handler for the recon
 	router.Handler(http.MethodGet, "/api/accesspoints", http.HandlerFunc(app.getAP))
-	router.Handler(http.MethodPost, "/api/accesspoints", http.HandlerFunc(app.apAction))
+	router.Handler(http.MethodPost, "/api/accesspoints", app.readJSONMiddleware(http.HandlerFunc(app.apAction)))
 
 	// Client Handler for the recon
 	router.Handler(http.MethodGet, "/api/clients", http.HandlerFunc(app.getClients))
-	router.Handler(http.MethodPost, "/api/clients", http.HandlerFunc(app.clientAction))
+	router.Handler(http.MethodPost, "/api/clients", app.readJSONMiddleware(http.HandlerFunc(app.clientAction)))
 
 	// Network interfaces handler
 	router.Handler(http.MethodGet, "/api/interfaces", http.HandlerFunc(app.getInterfaces))
-	router.Handler(http.MethodPost, "/api/interfaces", http.HandlerFunc(app.interfaceAction))
+	router.Handler(http.MethodPost, "/api/interfaces/:id",
+		app.findInterfaceByIdMiddleware(
+			app.readJSONMiddleware(
+				http.HandlerFunc(app.interfaceAction))))
 
 	// Filter / White- / Black-list
-	router.Handler(http.MethodGet, "/api/filter/:id", http.HandlerFunc(app.getFilters))
-	router.Handler(http.MethodPost, "/api/filter/:id", http.HandlerFunc(app.filterAction))
-
-	// Handler for deleting the captures
-	router.Handler(http.MethodPost, "/api/captures", http.HandlerFunc(app.captureAction))
-	router.Handler(http.MethodGet, "/api/capture/:id", http.HandlerFunc(app.getCaptureWithId))
+	router.Handler(http.MethodGet, "/api/filter/:id",
+		app.findFilterByIdMiddleware(
+			http.HandlerFunc(app.getFilters)))
+	router.Handler(http.MethodPost, "/api/filter/:id",
+		app.findFilterByIdMiddleware(
+			app.readJSONMiddleware(
+				http.HandlerFunc(app.filterAction))))
 
 	// Handler for scheduler
 	router.Handler(http.MethodGet, "/api/schedule", http.HandlerFunc(app.getSchedules))
 	router.Handler(http.MethodPut, "/api/schedule", http.HandlerFunc(app.addSchedule))
 	router.Handler(http.MethodDelete, "/api/schedule/:id", http.HandlerFunc(app.deleteSchedule))
+
+	router.Handler(http.MethodGet, "/api/fakeap", http.HandlerFunc(app.getFakeAP))
 
 	// Use the http.FileServer handler to serve the static files from the ./ui/dist/ directory.
 	fileServer := http.FileServer(http.Dir("/usr/local/raspberry/ui/dist/"))

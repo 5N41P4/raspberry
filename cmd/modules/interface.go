@@ -8,6 +8,24 @@ import (
 	"github.com/5N41P4/raspberry/internal/data"
 )
 
+type InterfaceState int
+
+const (
+	Up InterfaceState = iota
+	Inet
+	Recon
+	Capture
+	AccessPoint
+)
+
+var InterfaceStates = map[InterfaceState]string{
+	Up:          "up",
+	Inet:        "inet",
+	Recon:       "recon",
+	Capture:     "capture",
+	AccessPoint: "accesspoint",
+}
+
 // Interface is a struct that contains the network interface name and the state of the interface
 
 type Interface struct {
@@ -15,6 +33,7 @@ type Interface struct {
 	State     string       `json:"state"`
 	Target    *data.Target `json:"target"`
 	Deauth    *data.Deauth
+	FakeAP    *FakeAP
 	Scheduler *data.Scheduler
 	process   *exec.Cmd
 }
@@ -50,14 +69,14 @@ func getInterface(name string) (Interface, error) {
 
 	inf := Interface{
 		Name:  name,
-		State: "up",
+		State: InterfaceStates[Up],
 		Deauth: &data.Deauth{
 			Running: false,
 		},
 	}
 
 	if strings.Contains(string(out), "inet") {
-		inf.State = "inet"
+		inf.State = InterfaceStates[Inet]
 	}
 
 	return inf, err
