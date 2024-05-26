@@ -2,19 +2,27 @@ package data
 
 // Data structs for the API / UI
 
+// Structs for API Requests
+
+type ApiSimpleAction struct {
+	Action     string `json:"action"`
+	Identifier string `json:"identifier"`
+}
+
+type ApiInterfaceAction struct {
+	Action string `json:"action"`
+	Time   int    `json:"time"`
+	Target Target `json:"target"`
+	Deauth bool   `json:"deauth"`
+}
+
+// Structs for API Responses
+
 type ApiInterface struct {
 	Name   string `json:"name"`
 	State  string `json:"mode"`
 	Deauth bool   `json:"deauth"`
 }
-
-type ApiAction struct {
-	Action string `json:"action"`
-	Time   int    `json:"time"`
-	Target string `json:"target"`
-	Deauth bool   `json:"deauth"`
-}
-
 type ApiSecurity struct {
 	WEP  int `json:"wep"`
 	WPA  int `json:"wpa"`
@@ -36,11 +44,4 @@ type ApiFakeAPStats struct {
 	Running   bool   `json:"running"`
 	Handshake bool   `json:"handshake"`
 	Key       bool   `json:"key"`
-}
-
-type ApiFakeAPAction struct {
-	Bssid   string `json:"bssid"`
-	Channel int    `json:"channel"`
-	Essid   string `json:"essid"`
-	Cipher  string `json:"cipher"`
 }

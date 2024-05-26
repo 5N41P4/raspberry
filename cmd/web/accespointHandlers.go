@@ -39,7 +39,7 @@ func (app *application) getAP(w http.ResponseWriter, r *http.Request) {
 // If the action is not found or there is an error reading the JSON input,
 // it returns a bad request response.
 func (app *application) apAction(w http.ResponseWriter, r *http.Request) {
-	input := r.Context().Value("input").(*data.ApiAction)
+	input := r.Context().Value("input").(*data.ApiSimpleAction)
 
 	app.infoLog.Printf("%s", input.Action)
 
@@ -50,7 +50,7 @@ func (app *application) apAction(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "delete":
-		delete(app.access, input.Target)
+		delete(app.access, input.Identifier)
 
 	case "refresh":
 		app.refreshLists()

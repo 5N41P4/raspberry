@@ -4,54 +4,36 @@ import (
 	"net/http"
 
 	"github.com/5N41P4/raspberry/cmd/modules"
+	"github.com/5N41P4/raspberry/internal/data"
 )
 
 // System Information Handlers
 
-func (app *application) diskUsage(w http.ResponseWriter, r *http.Request) {
-	diskUsage, err := modules.GetDiskSpace()
+func (app *application) systemInfo(w http.ResponseWriter, r *http.Request) {
+	var system data.System
+	var err error
+	system.Disk, err = modules.GetDiskSpace()
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 
-	app.infoLog.Println("[Disk]")
+	system.Cpu, err = modules.GetCpuUsage()
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	system.Mem, err = modules.GetMemUsage()
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
-	err = app.writeJSON(w, http.StatusOK, diskUsage, nil)
+	err = app.writeJSON(w, http.StatusOK, system, nil)
 	if err != nil {
 		app.serverError(w, err)
 	}
-}
 
-func (app *application) cpuUsage(w http.ResponseWriter, r *http.Request) {
-	cpuUsage, err := modules.GetCpuUsage()
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	app.infoLog.Println("[CPU]")
-
-	w.Header().Set("Content-Type", "application/json")
-	err = app.writeJSON(w, http.StatusOK, cpuUsage, nil)
-	if err != nil {
-		app.serverError(w, err)
-	}
-}
-
-func (app *application) memUsage(w http.ResponseWriter, r *http.Request) {
-	memUsage, err := modules.GetMemUsage()
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	app.infoLog.Println("[Memory]")
-
-	w.Header().Set("Content-Type", "appliaction/json")
-	err = app.writeJSON(w, http.StatusOK, memUsage, nil)
-	if err != nil {
-		app.serverError(w, err)
-	}
 }

@@ -53,7 +53,7 @@ func (app *application) apiTest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (app *application) readJSONMiddleware(next http.Handler) http.Handler {
+func (app *application) readSimpleAction(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			if r.Header.Get("Content-Type") != "application/json" {
@@ -62,7 +62,7 @@ func (app *application) readJSONMiddleware(next http.Handler) http.Handler {
 			}
 		}
 
-		var intput data.ApiAction
+		var intput data.ApiSimpleAction
 		err := app.readJSON(w, r, &intput)
 		if err != nil {
 			app.serverError(w, err)
@@ -74,7 +74,28 @@ func (app *application) readJSONMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func (app *application) findInterfaceByIdMiddleware(next http.Handler) http.Handler {
+func (app *application) readInterfaceActoin(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			if r.Header.Get("Content-Type") != "application/json" {
+				app.clientError(w, http.StatusUnsupportedMediaType)
+				return
+			}
+		}
+
+		var intput data.ApiInterfaceAction
+		err := app.readJSON(w, r, &intput)
+		if err != nil {
+			app.serverError(w, err)
+			return
+		}
+		ctx := context.WithValue(r.Context(), "input", &intput)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func (app *application) findInterfaceById(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := httprouter.ParamsFromContext(r.Context()).ByName("id")
 		inf, ok := app.interfaces[id]
@@ -89,7 +110,7 @@ func (app *application) findInterfaceByIdMiddleware(next http.Handler) http.Hand
 	})
 }
 
-func (app *application) findFilterByIdMiddleware(next http.Handler) http.Handler {
+func (app *application) findFilterById(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := httprouter.ParamsFromContext(r.Context()).ByName("id")
 		var list *Filter

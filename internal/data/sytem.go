@@ -2,6 +2,12 @@ package data
 
 // Data structs for the API / UI
 
+type System struct {
+	Disk DiskUsage `json:"disk"`
+	Cpu  CpuUsage  `json:"cpu"`
+	Mem  MemUsage  `json:"mem"`
+}
+
 type DiskUsage struct {
 	Total   float64 `json:"total"`
 	Free    float64 `json:"free"`

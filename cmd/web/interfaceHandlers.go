@@ -60,7 +60,7 @@ func (app *application) getInterfaces(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) interfaceAction(w http.ResponseWriter, r *http.Request) {
-	input := r.Context().Value("input").(*data.ApiAction)
+	input := r.Context().Value("input").(*data.ApiInterfaceAction)
 	inf := r.Context().Value("inf").(*modules.Interface)
 
 	if input.Action == "stop" {
@@ -74,7 +74,7 @@ func (app *application) interfaceAction(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	inf.Target = getTarget(input.Target, &app.access, &app.clients)
+	inf.Target = &input.Target
 
 	switch input.Action {
 	case modules.InterfaceStates[AccessPoint]:

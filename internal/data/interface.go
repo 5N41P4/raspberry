@@ -5,7 +5,7 @@ type Target struct {
 	Essid   string `json:"essid"`
 	Station string `json:"station"`
 	Channel string `json:"channel"`
-	Cipher  string `json:"cipher"`
+	Privacy string `json:"privacy"`
 }
 
 type Deauth struct {

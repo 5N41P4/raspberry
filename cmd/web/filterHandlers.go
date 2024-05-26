@@ -22,7 +22,7 @@ func (app *application) getFilters(w http.ResponseWriter, r *http.Request) {
 
 // Post handler
 func (app *application) filterAction(w http.ResponseWriter, r *http.Request) {
-	input := r.Context().Value("input").(*data.ApiAction)
+	input := r.Context().Value("input").(*data.ApiSimpleAction)
 	list := r.Context().Value("list").(*Filter)
 
 	fmt.Fprintf(w, "%+v\n", input)
@@ -32,10 +32,10 @@ func (app *application) filterAction(w http.ResponseWriter, r *http.Request) {
 		list.Switch()
 
 	case "add":
-		list.Add(input.Target)
+		list.Add(input.Identifier)
 
 	case "delete":
-		list.Delete(input.Target)
+		list.Delete(input.Identifier)
 
 	case "reset":
 		list.Reset()

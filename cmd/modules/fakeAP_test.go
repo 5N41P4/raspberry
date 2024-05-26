@@ -12,7 +12,7 @@ func TestGetFakeAP(t *testing.T) {
 		Bssid:   "A4:CE:DA:87:4D:50",
 		Channel: "6",
 		Essid:   "FakeAP",
-		Cipher:  "WPA2",
+		Privacy: "WPA2",
 	}
 
 	fakeAp, err := NewFakeAP(i.Name, f)
@@ -39,7 +39,7 @@ func TestGetFakeAP(t *testing.T) {
 		t.Errorf("Expected ESSID to be '%s', got '%s'", f.Essid, i.FakeAP.Target.Essid)
 	}
 
-	if i.FakeAP.Target.Cipher != f.Cipher {
-		t.Errorf("Expected Cipher to be '%s', got '%s'", f.Cipher, i.FakeAP.Target.Cipher)
+	if i.FakeAP.Target.Privacy != f.Privacy {
+		t.Errorf("Expected Cipher to be '%s', got '%s'", f.Privacy, i.FakeAP.Target.Privacy)
 	}
 }

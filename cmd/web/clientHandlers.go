@@ -25,7 +25,7 @@ func (app *application) getClients(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) clientAction(w http.ResponseWriter, r *http.Request) {
-	input := r.Context().Value("input").(*data.ApiAction)
+	input := r.Context().Value("input").(*data.ApiSimpleAction)
 
 	app.infoLog.Printf("%s", input.Action)
 
@@ -36,7 +36,7 @@ func (app *application) clientAction(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "delete":
-		delete(app.clients, input.Target)
+		delete(app.clients, input.Identifier)
 
 	case "refresh":
 		app.refreshLists()

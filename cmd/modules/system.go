@@ -11,12 +11,12 @@ import (
 // Functions to get system variables and information
 
 // GetDiskSpace returns the total and free disk space in GB and the free space in percentage
-func GetDiskSpace() (*data.DiskUsage, error) {
+func GetDiskSpace() (data.DiskUsage, error) {
 	var stat syscall.Statfs_t
 
 	err := syscall.Statfs("/", &stat)
 	if err != nil {
-		return nil, err
+		return data.DiskUsage{}, err
 	}
 
 	// Calculate total, free and used space
@@ -35,7 +35,7 @@ func GetDiskSpace() (*data.DiskUsage, error) {
 		percent = float64(used) / float64(total) * 100.0
 	}
 
-	return &data.DiskUsage{
+	return data.DiskUsage{
 		Total:   total,
 		Free:    free,
 		Used:    used,
@@ -45,28 +45,28 @@ func GetDiskSpace() (*data.DiskUsage, error) {
 
 // GetCpuUsage returns the total and free CPU usage in percentage
 
-func GetCpuUsage() (*data.CpuUsage, error) {
+func GetCpuUsage() (data.CpuUsage, error) {
 	cpu, err := loadavg.Get()
 	if err != nil {
-		return nil, err
+		return data.CpuUsage{}, err
 	}
 
-	return &data.CpuUsage{
-		AvgLoad1: cpu.Loadavg1,
-		AvgLoad5: cpu.Loadavg5,
+	return data.CpuUsage{
+		AvgLoad1:  cpu.Loadavg1,
+		AvgLoad5:  cpu.Loadavg5,
 		AvgLoad15: cpu.Loadavg15,
 	}, nil
 }
 
 // GetMemUsage returns the memory usage in percent
-func GetMemUsage() (*data.MemUsage, error) {
+func GetMemUsage() (data.MemUsage, error) {
 	memStats, err := memory.Get()
 	if err != nil {
-		return nil, err
+		return data.MemUsage{}, err
 	}
 	var mem = (float64(memStats.Used) / float64(memStats.Total)) * 100
 
-	return &data.MemUsage{
+	return data.MemUsage{
 		Memory: mem,
 	}, nil
 }

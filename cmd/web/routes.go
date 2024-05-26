@@ -16,8 +16,8 @@ func (app *application) routes() http.Handler {
 	router.Handler(http.MethodGet, "/recon", http.HandlerFunc(app.home))
 	router.Handler(http.MethodGet, "/filter", http.HandlerFunc(app.home))
 	router.Handler(http.MethodGet, "/capture", http.HandlerFunc(app.home))
-	router.Handler(http.MethodGet, "/maps", http.HandlerFunc(app.home))
 	router.Handler(http.MethodGet, "/scheduler", http.HandlerFunc(app.home))
+	router.Handler(http.MethodGet, "/attack", http.HandlerFunc(app.home))
 
 	// Ping handler for testing
 	router.Handler(http.MethodGet, "/ping", http.HandlerFunc(app.ping))
@@ -25,14 +25,8 @@ func (app *application) routes() http.Handler {
 	// API endpoint for testing
 	router.Handler(http.MethodGet, "/api/test", http.HandlerFunc(app.apiTest))
 
-	// Disk usage handler
-	router.Handler(http.MethodGet, "/api/disk", http.HandlerFunc(app.diskUsage))
-
-	// CPU usage handler
-	router.Handler(http.MethodGet, "/api/cpu", http.HandlerFunc(app.cpuUsage))
-
-	// Memory usage handler
-	router.Handler(http.MethodGet, "/api/mem", http.HandlerFunc(app.memUsage))
+	// System information handler
+	router.Handler(http.MethodGet, "/api/system", http.HandlerFunc(app.systemInfo))
 
 	// Security overview handler
 	router.Handler(http.MethodGet, "/api/security", http.HandlerFunc(app.getSec))
@@ -40,30 +34,30 @@ func (app *application) routes() http.Handler {
 	// Capture file handlers
 	router.Handler(http.MethodGet, "/api/captures", http.HandlerFunc(app.getCaptures))
 	router.Handler(http.MethodGet, "/api/capture/:id", http.HandlerFunc(app.getCaptureWithId))
-	router.Handler(http.MethodPost, "/api/captures", app.readJSONMiddleware(http.HandlerFunc(app.captureAction)))
+	router.Handler(http.MethodPost, "/api/captures", app.readSimpleAction(http.HandlerFunc(app.captureAction)))
 
 	// Access Point handler for the recon
 	router.Handler(http.MethodGet, "/api/accesspoints", http.HandlerFunc(app.getAP))
-	router.Handler(http.MethodPost, "/api/accesspoints", app.readJSONMiddleware(http.HandlerFunc(app.apAction)))
+	router.Handler(http.MethodPost, "/api/accesspoints", app.readSimpleAction(http.HandlerFunc(app.apAction)))
 
 	// Client Handler for the recon
 	router.Handler(http.MethodGet, "/api/clients", http.HandlerFunc(app.getClients))
-	router.Handler(http.MethodPost, "/api/clients", app.readJSONMiddleware(http.HandlerFunc(app.clientAction)))
+	router.Handler(http.MethodPost, "/api/clients", app.readSimpleAction(http.HandlerFunc(app.clientAction)))
 
 	// Network interfaces handler
 	router.Handler(http.MethodGet, "/api/interfaces", http.HandlerFunc(app.getInterfaces))
 	router.Handler(http.MethodPost, "/api/interfaces/:id",
-		app.findInterfaceByIdMiddleware(
-			app.readJSONMiddleware(
+		app.findInterfaceById(
+			app.readInterfaceActoin(
 				http.HandlerFunc(app.interfaceAction))))
 
 	// Filter / White- / Black-list
 	router.Handler(http.MethodGet, "/api/filter/:id",
-		app.findFilterByIdMiddleware(
+		app.findFilterById(
 			http.HandlerFunc(app.getFilters)))
 	router.Handler(http.MethodPost, "/api/filter/:id",
-		app.findFilterByIdMiddleware(
-			app.readJSONMiddleware(
+		app.findFilterById(
+			app.readSimpleAction(
 				http.HandlerFunc(app.filterAction))))
 
 	// Handler for scheduler
