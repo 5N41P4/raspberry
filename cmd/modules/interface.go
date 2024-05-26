@@ -93,6 +93,12 @@ func (i *Interface) Stop() {
 		close(i.Deauth.DeauthCan)
 	}
 
+	if i.FakeAP != nil {
+		i.FakeAP.Stop()
+	}
+
+	i.State = InterfaceStates[Up]
+
 	// Stop the monitor mode
 	mon := exec.Command("sudo", "airmon-ng", "stop", i.Name)
 	_ = mon.Run()

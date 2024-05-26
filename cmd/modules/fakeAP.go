@@ -2,6 +2,7 @@ package modules
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"os/exec"
 	"path"
@@ -54,17 +55,33 @@ func NewFakeAP(inf string, f *data.Target) (*FakeAP, error) {
 		Key:       false,
 	}
 
-	path := path.Join(AttackBasePath, "/", fakeAp.Target.Essid, "/", time.Now().Format("02.01.2006_15:04"))
+	fmt.Printf("Target: %v\n", f)
+
+	path := path.Join(AttackBasePath, "/", fakeAp.Target.Essid, "/", time.Now().Format("02.01.2006_15:04"), "/", "output")
 
 	// Create the fake AP Command
 	ap := exec.Command("sudo", generateAirbase(fakeAp, inf)...)
+	fmt.Printf("AP: %v\n", ap)
 	fakeAp.AP = ap
 
 	// Create the airodump-ng Command
 	dump := exec.Command("sudo", "airodump-ng", "-c", fakeAp.Target.Channel, "-d", fakeAp.Target.Bssid, "-w", path, inf)
+	fmt.Printf("DUMP: %v\n", dump)
 	fakeAp.Monitor = dump
 
 	return fakeAp, err
+}
+
+func (f *FakeAP) Stop() {
+	if f.AP != nil && f.AP.Process != nil {
+		f.AP.Process.Kill()
+		f.AP.Process.Wait()
+	}
+
+	if f.Monitor != nil && f.Monitor.Process != nil {
+		f.Monitor.Process.Kill()
+		f.Monitor.Process.Wait()
+	}
 }
 
 func (f *FakeAP) Start() {
@@ -123,6 +140,7 @@ func appendSlices(slices ...[]string) []string {
 }
 
 func getCipherSlice(c string) []string {
+	fmt.Printf("CIPHER: %v\n", c)
 	switch {
 	case strings.Contains(c, "WEP"):
 		return []string{"-N"}

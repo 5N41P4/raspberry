@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
 	"github.com/5N41P4/raspberry/cmd/modules"
 	"github.com/5N41P4/raspberry/internal/data"
@@ -85,6 +84,7 @@ func (app *application) interfaceAction(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 		inf.FakeAP = ap
+		inf.State = modules.InterfaceStates[AccessPoint]
 		go inf.FakeAP.Start()
 
 	case modules.InterfaceStates[Capture]:
@@ -105,29 +105,4 @@ func (app *application) interfaceAction(w http.ResponseWriter, r *http.Request) 
 	}
 
 	go inf.StopAfter(input.Time)
-}
-
-func getTarget(target string, access *map[string]*data.Accesspoint, clients *map[string]*data.Client) *data.Target {
-	// If target is a client station then fill in the target information from the client
-	cl, ok := (*clients)[target]
-	if ok {
-		return &data.Target{
-			Bssid:   cl.Bssid,
-			Station: cl.Station,
-			Channel: strconv.Itoa((*access)[cl.Bssid].Channel),
-		}
-	}
-
-	// If the target is a BSSID then fill in the target with the information from the accesspoint
-	ap, ok := (*access)[target]
-	if ok {
-		return &data.Target{
-			Bssid:   ap.Bssid,
-			Station: "",
-			Channel: strconv.Itoa(ap.Channel),
-		}
-	}
-
-	// If the target could not be found then we fill in empty strings as a default
-	return &data.Target{}
 }
