@@ -85,41 +85,7 @@ func TestDiskUsage(t *testing.T) {
 	defer ts.Close()
 
 	// Make a GET request to the /api/disk endpoint on the test server.
-	code, _, _ := ts.get(t, "/api/disk")
-
-	// Check that the response code is 200 OK.
-	if code != http.StatusOK {
-		t.Errorf("want %d; got %d", http.StatusOK, code)
-	}
-}
-
-func TestCpuUsage(t *testing.T) {
-	// Create an instance of our application struct which holds the application-wide dependencies.
-	app := newTestApplication(t)
-
-	// Create a new testServer instance passing in the routes from our application.
-	ts := newTestServer(t, app.routes())
-	defer ts.Close()
-
-	// Make a GET request to the /api/disk endpoint on the test server.
-	code, _, _ := ts.get(t, "/api/cpu")
-
-	// Check that the response code is 200 OK.
-	if code != http.StatusOK {
-		t.Errorf("want %d; got %d", http.StatusOK, code)
-	}
-}
-
-func TestMemUsage(t *testing.T) {
-	// Create an instance of our application struct which holds the application-wide dependencies.
-	app := newTestApplication(t)
-
-	// Create a new testServer instance passing in the routes from our application.
-	ts := newTestServer(t, app.routes())
-	defer ts.Close()
-
-	// Make a GET request to the /api/disk endpoint on the test server.
-	code, _, _ := ts.get(t, "/api/mem")
+	code, _, _ := ts.get(t, "/api/system")
 
 	// Check that the response code is 200 OK.
 	if code != http.StatusOK {
